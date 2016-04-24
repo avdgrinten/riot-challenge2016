@@ -23,9 +23,9 @@
 			<div class="col-xs-6 col-sm-6 col-md-6">
 				<p class="question-text">This player has mastered</p>
 				<div class="question-images">
-					<img src="http://ddragon.leagueoflegends.com/cdn/6.8.1/img/champion/Jinx.png" width="80" height="80">
-					<img src="http://ddragon.leagueoflegends.com/cdn/6.8.1/img/champion/Trundle.png" width="80" height="80">
-					<img src="http://ddragon.leagueoflegends.com/cdn/6.8.1/img/champion/Varus.png" width="80" height="80">
+					{{#each masteries}}
+						<img src="http://ddragon.leagueoflegends.com/cdn/6.8.1/img/champion/{{championKey}}.png" width="80" height="80">
+					{{/each}}
 				</div>
 				<p class="question-text">What's his main?</p>
 				<div class="champ-select">

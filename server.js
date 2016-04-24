@@ -3,6 +3,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const request = require('request');
 const express = require('express');
 const hb = require('handlebars');
 
@@ -12,11 +13,64 @@ const config = JSON.parse(config_src);
 const template_src= fs.readFileSync(__dirname + "/data/main.handlebars", 'utf8');
 const template = hb.compile(template_src);
 
+let champions = { };
+
+function findSummoner(summoner_name) {
+	return new Promise((resolve, reject) => {
+		request({
+			url: "https://euw.api.pvp.net/api/lol/euw/v1.4/summoner/by-name/" + summoner_name + "?api_key="
+					+ config.apiKey,
+			json: true
+		}, (error, res, body) => {
+			if(error) {
+				reject(error);
+				return;
+			}
+
+			let key = summoner_name.toLowerCase().replace(' ', '');
+
+			resolve({
+				id: body[key].id,
+				name: body[key].name,
+				icon: body[key].profileIconId
+			});
+		});
+	});
+}
+
+function getRandomMasteries() {
+	return findSummoner('korona').then((summoner) => {
+		return new Promise((resolve, reject) => {
+			request({
+				url: "https://euw.api.pvp.net/championmastery/location/EUW1/player/" + summoner.id 
+						+ "/champions?api_key=" + config.apiKey,
+				json: true
+			}, (error, res, body) => {
+				if(error) {
+					reject(error);
+					return;
+				}
+
+				resolve(body.map(entry => {
+					return {
+						championId: entry.championId,
+						championKey: champions[entry.championId].key,
+						level: entry.championLevel,
+						points: entry.championPoints
+					};
+				}));
+			});
+		});
+	});
+}
+
 const app = express();
 
 app.get("/", function(req, res) {
-	res.set('Content-Type', 'text/html');
-	res.send(template({ message: "Hello" }));
+	getRandomMasteries().then(masteries => {
+		res.set('Content-Type', 'text/html');
+		res.send(template({ masteries: masteries }));
+	});
 });
 
 app.get("/templates.js", function(req, res) {
@@ -60,8 +114,33 @@ app.get("/templates.js", function(req, res) {
 
 app.use(express.static(__dirname + "/static/"));
 
-const server = require("http").createServer(app);
-server.listen(config.serverPort);
+new Promise((resolve, reject) => {
+	request({
+		url: "https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion?api_key="
+				+ config.apiKey,
+		json: true
+	}, (error, res, body) => {
+		if(error) {
+			reject(error);
+			return;
+		}
 
-console.log("Server running on port: " + config.serverPort);
+		for(let key in body.data) {
+			let entry = body.data[key];
+			champions[entry.id] = {
+				key: entry.key,
+				name: entry.name
+			};
+		}
 
+		resolve();
+	});
+}).then(() => {
+	const server = require("http").createServer(app);
+	server.listen(config.serverPort);
+
+	console.log("Server running on port: " + config.serverPort);
+}).catch(error => {
+	console.error("Error during initialization");
+	console.error(error);
+});
