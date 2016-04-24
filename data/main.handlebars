@@ -1,0 +1,15 @@
+<html>
+<head>
+	<script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.runtime.min.js"></script>
+	<script type="application/javascript" src="templates.js"></script>
+</head>
+<body>
+	{{message}}
+<script>
+
+var template = Handlebars.template(templates.question);
+console.log(template({ title: "Hello world!" }));
+
+</script>
+</body>
+</html>
