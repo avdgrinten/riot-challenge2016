@@ -47,7 +47,8 @@ app.get("/templates.js", function(req, res) {
 		return Promise.all(files.map(compile))
 	}).then(compiled_objects => {
 		let joined = "var templates = { };\n" + compiled_objects.map(object => {
-			return "templates." + object.identifier + " = " + object.code + ";\n";
+			return "templates." + object.identifier
+					+ " = Handlebars.template(" + object.code + ");\n";
 		}).join('\n');
 		res.set('Content-Type', 'application/javascript');
 		res.send(joined);
