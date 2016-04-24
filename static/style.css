@@ -9,8 +9,27 @@ body {
 	height: 100%;
 }
 
+.header {
+	background-color: #F7F7F9;
+	border-bottom: 1px solid #E1E1E8;
+}
+
+.left-column {
+	background-color: #F7F7F9;
+	border-right: 1px solid #E1E1E8;
+}
+
+.right-column {
+	background-color: #F7F7F9;
+	border-left: 1px solid #E1E1E8;
+}
+
 .container {
 	background: rgba(255, 255, 255, 1);
+	height: 100%;
+}
+
+.row {
 	height: 100%;
 }
 
@@ -25,6 +44,7 @@ body {
 }
 
 .question-text {
+	padding: 10px;
 	text-align: center;
 	font-size: 2em;
 }
@@ -35,7 +55,11 @@ body {
 }
 
 .summoner {
-	margin-bottom: 5px;
+	padding: 10px;
+}
+
+.question-list-item {
+	padding: 10px;
 }
 
 #summoner-list {
