@@ -89,7 +89,7 @@ app.get('/', function(req, res) {
 	getRandomMasteries().then(masteries => {
 		res.set('Content-Type', 'text/html');
 		res.send(template({ masteries: masteries,
-				lobbyId: test_lobby.id }));
+				lobbyId: test_lobby.id, ingame: false }));
 	});
 });
 

@@ -11,6 +11,7 @@
 	<script type="application/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
 </head>
 <body>
+	{{#if ingame}}
 	<div id="overlay" class="container">
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 header"><h1>Guess my main!</h1></div>
@@ -58,25 +59,52 @@
 			</div>
 		</div>
 	</div>
-<script>
-	function pollAgain() {
-		$.get({
-			url: 'api/poll/{{lobbyId}}',
-			success: (data) => {
-				console.log(data);
+	{{else}}
+	<div id="overlay" class="container">
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 header"><h1>Guess my main!</h1></div>
+			<div class="col-xs-12 col-sm-12 col-md-12 submit-div">
+				<p class="in-text">Enter your summonername and region to play "Guess my main!"</p>
+				<input type="text" id="input-summoner-name" class="input-text" placeholder="Enter your summonername"/>
+				<select id="select-region" class="input-select">
+					<option value="br">BR</option>
+					<option value="eune">EUNE</option>
+					<option value="euw">EUW</option>
+					<option value="jp">JP</option>
+					<option value="kr">KR</option>
+					<option value="lan">LAN</option>
+					<option value="las">LAS</option>
+					<option value="na">NA</option>
+					<option value="oce">OCE</option>
+					<option value="ru">RU</option>
+					<option value="tr">TR</option>
+				</select>
+				<button type="submit" id="btn-submit" class="input-button">submit</button>
+			</div>
+		</div>
+	</div>
+	{{/if}}
 
-				pollAgain();
-			},
-			error: (xhr, status, error) => {
-				console.error("Could not retrieve api/poll/:lobby endpoint");
-				console.error("Status:", status);
-				console.error(error);
-			}
-		});
-	}
+	<script>
+		function pollAgain() {
+			$.get({
+				url: 'api/poll/{{lobbyId}}',
+				success: (data) => {
+					console.log(data);
 
-	pollAgain();
-</script>
+					pollAgain();
+				},
+				error: (xhr, status, error) => {
+					console.error("Could not retrieve api/poll/:lobby endpoint");
+					console.error("Status:", status);
+					console.error(error);
+				}
+			});
+		}
+
+		pollAgain();
+	</script>
+
 </body>
 </html>
 

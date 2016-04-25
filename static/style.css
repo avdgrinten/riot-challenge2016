@@ -34,6 +34,10 @@ body {
 	height: 100%;
 }
 
+.submit-div {
+	text-align: center;
+}
+
 .timer {
 	font-size: 1em;
 	text-align: center;
@@ -44,10 +48,25 @@ body {
 	margin-bottom: 10px;
 }
 
-.question-text {
+.question-text,
+.in-text {
 	padding: 10px;
 	text-align: center;
 	font-size: 2em;
+}
+
+.input-text {
+	width: 33%;
+	height: 27px;
+}
+
+.input-select {
+	height: 27px;
+}
+
+.input-button {
+	height: 27px;
+	padding-top: 2px;
 }
 
 .question-images {
