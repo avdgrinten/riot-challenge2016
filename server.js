@@ -6,6 +6,8 @@ const fs = require('fs');
 const request = require('request');
 const express = require('express');
 const hb = require('handlebars');
+const mongodb = require('mongodb');
+const assert = require('assert');
 
 const config_src = fs.readFileSync(__dirname + "/config.json", 'utf8');
 const config = JSON.parse(config_src);
@@ -14,6 +16,7 @@ const template_src= fs.readFileSync(__dirname + "/data/main.handlebars", 'utf8')
 const template = hb.compile(template_src);
 
 let champions = { };
+let db = null;
 
 function findSummoner(summoner_name) {
 	return new Promise((resolve, reject) => {
@@ -115,25 +118,52 @@ app.get("/templates.js", function(req, res) {
 app.use(express.static(__dirname + "/static/"));
 
 new Promise((resolve, reject) => {
-	request({
-		url: "https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion?api_key="
-				+ config.apiKey,
-		json: true
-	}, (error, res, body) => {
+	let mongoClient = mongodb.MongoClient;
+	let url = config.mongoUri;
+	mongoClient.connect(url, function(error, database) {
 		if(error) {
 			reject(error);
-			return;
+		}else{
+			console.log("Connected to db");
+			db = database;
+			resolve();
 		}
+	});
+}).then(() => {
+	return new Promise((resolve, reject) => {
+		db.dropCollection("champions", () => { 
+			resolve();
+		});	
+	});
+}).then(() => {
+	return new Promise((resolve, reject) => {
+		request({
+			url: "https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion?api_key="
+					+ config.apiKey,
+			json: true
+		}, (error, res, body) => {
+			if(error) {
+				reject(error);
+				return;
+			}
 
-		for(let key in body.data) {
-			let entry = body.data[key];
-			champions[entry.id] = {
-				key: entry.key,
-				name: entry.name
-			};
-		}
+			for(let key in body.data) {
+				let entry = body.data[key];
+				champions[entry.id] = {
+					key: entry.key,
+					name: entry.name
+				};
+			}
 
-		resolve();
+			db.createCollection("champions", { }).then((collection) => {
+				for(let key in champions) {
+					let data = champions[key];
+					data.id = key;
+					collection.insertOne(data);
+				}
+				resolve();								
+			});
+		});
 	});
 }).then(() => {
 	const server = require("http").createServer(app);
