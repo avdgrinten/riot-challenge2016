@@ -9,6 +9,8 @@ const hb = require('handlebars');
 const mongodb = require('mongodb');
 const assert = require('assert');
 
+const gameLogic = require('./lib/game-logic.js');
+
 const config_src = fs.readFileSync(__dirname + "/config.json", 'utf8');
 const config = JSON.parse(config_src);
 
@@ -69,14 +71,33 @@ function getRandomMasteries() {
 
 const app = express();
 
-app.get("/", function(req, res) {
+const logic = new gameLogic.Logic();
+
+let test_user = logic.createUser();
+let test_lobby = logic.createLobby();
+test_lobby.joinUser(test_user);
+
+let test_player = test_lobby.findPlayer(test_user);
+test_player.queueMessage({ hello: "world!" });
+setTimeout(() => {
+	test_player.queueMessage({ hello: "again!" });
+}, 4000);
+
+app.use(express.static(__dirname + "/static/"));
+
+app.get('/', function(req, res) {
 	getRandomMasteries().then(masteries => {
 		res.set('Content-Type', 'text/html');
-		res.send(template({ masteries: masteries }));
+		res.send(template({ masteries: masteries,
+				lobbyId: test_lobby.id }));
 	});
 });
 
-app.get("/templates.js", function(req, res) {
+app.get(/^\/((?:[a-zA-Z0-9+-]{4})+)$/, function(req, res, next) {
+	console.log("lobby", req.params[0]);
+});
+
+app.get('/templates.js', function(req, res) {
 	let compile = file => new Promise((resolve, reject) => {
 		fs.readFile(__dirname + "/data/templates/" + file, 'utf8', (error, source) => {
 			if(error) {
@@ -115,7 +136,35 @@ app.get("/templates.js", function(req, res) {
 	});
 });
 
-app.use(express.static(__dirname + "/static/"));
+app.get('/api/poll/:lobby', function(req, res) {
+	let lobby = logic.getLobby(req.params.lobby);
+	if(!lobby) {
+		res.status(403).send("Illegal lobby ID");
+		return;
+	}
+
+	let user = logic.getUser(test_user.id);
+	if(!user) {
+		res.status(403).send("Illegal user ID");
+		return;
+	}
+
+	let player = lobby.findPlayer(user);
+	if(!player) {
+		res.status(403).send("You are not in this lobby");
+		return;
+	}
+
+	player.retrieveMessages().then(messages => {
+		console.log("answer", messages);
+		res.set('Content-Type', 'application/json');
+		res.send(JSON.stringify(messages));
+	});
+});
+
+app.post('/api/answer-question/:lobby/:answer', function(req, res) {
+	
+});
 
 new Promise((resolve, reject) => {
 	let mongoClient = mongodb.MongoClient;

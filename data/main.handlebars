@@ -8,6 +8,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">	
 	<script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.runtime.min.js"></script>
 	<script type="application/javascript" src="templates.js"></script>
+	<script type="application/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
 </head>
 <body>
 	<div id="overlay" class="container">
@@ -57,6 +58,25 @@
 			</div>
 		</div>
 	</div>
+<script>
+	function pollAgain() {
+		$.get({
+			url: 'api/poll/{{lobbyId}}',
+			success: (data) => {
+				console.log(data);
+
+				pollAgain();
+			},
+			error: (xhr, status, error) => {
+				console.error("Could not retrieve api/poll/:lobby endpoint");
+				console.error("Status:", status);
+				console.error(error);
+			}
+		});
+	}
+
+	pollAgain();
+</script>
 </body>
 </html>
 
