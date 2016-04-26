@@ -37,7 +37,8 @@ let connectDb = function() {
 let initLogic = function() {
 	return new Promise((resolve, reject) => {
 		logic = new gameLogic.Logic({
-			db: db
+			db: db,
+			apiKey: config.apiKey
 		});
 		resolve();
 	})
