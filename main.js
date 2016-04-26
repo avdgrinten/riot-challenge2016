@@ -8,6 +8,7 @@ const minimist = require('minimist');
 const mongodb = require('mongodb');
 
 const setup = require('./lib/setup.js');
+const crawl = require('./lib/crawl.js');
 const gameLogic = require('./lib/game-logic.js');
 const expressServer = require('./lib/express-server.js');
 
@@ -35,9 +36,12 @@ let connectDb = function() {
 
 let initLogic = function() {
 	return new Promise((resolve, reject) => {
-		logic = new gameLogic.Logic();
+		logic = new gameLogic.Logic({
+			db: db
+		});
 		resolve();
-	});
+	})
+	.then(() => logic.initialize());
 };
 
 let main = function() {
@@ -48,7 +52,20 @@ let main = function() {
 		resolve();
 	})
 	.then(() => {
-		if(args.setup == 'create-collections') {
+		if(args.special == 'import-masteries') {
+			return readConfig()
+			.then(connectDb)
+			.then(() => {
+				return crawl.importMasteries(args.platform, args.summoner, {
+					db: db,
+					apiKey: config.apiKey
+				});
+			})
+			.then(() => {
+				console.log("Success");
+				return db.close();
+			});
+		}else if(args.setup == 'create-collections') {
 			return readConfig()
 			.then(connectDb)
 			.then(() => {
