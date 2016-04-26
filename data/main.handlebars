@@ -65,7 +65,7 @@
 			<div class="col-xs-12 col-sm-12 col-md-12 header"><h1>Guess my main!</h1></div>
 			<div class="col-xs-12 col-sm-12 col-md-12 submit-div">
 				<p class="in-text">Enter your summoner name and region to play.</p>
-				<form class="form-inline">
+				<form id="submit" class="form-inline">
 					<input type="text" id="input-summoner-name" class="form-control" placeholder="summoner name"/>
 					<select id="select-region" class="form-control">
 						<option value="br">BR</option>
@@ -89,7 +89,7 @@
 
 	<script>
 		function pollAgain() {
-			$.get({
+			$.post({
 				url: 'api/poll/{{lobbyId}}',
 				success: (data) => {
 					console.log(data);
@@ -105,6 +105,31 @@
 		}
 
 		pollAgain();
+
+		function submit() {
+			$.post({
+				url: '/api/select-summoner',
+				data: JSON.stringify({
+					summonerName: $("#input-summoner-name").val(),
+					region: $("#select-region").val()
+				}),
+				success: (data) => {
+					console.log(data);
+				},
+				error: (xhr, status, error) => {
+					console.error("Could not retrieve api/select-summoner endpoint");
+					console.error("Status:", status);
+					console.error(error);
+				},
+				contentType: 'application/json'
+			});
+		}
+
+		$("#submit").submit(function(event) {
+			event.preventDefault();
+			submit();
+		});
+
 	</script>
 
 </body>
