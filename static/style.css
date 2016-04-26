@@ -49,10 +49,21 @@ body {
 }
 
 .question-text,
-.in-text {
+.input-text,
+.lobby-text {
 	padding: 10px;
 	text-align: center;
 	font-size: 2em;
+}
+
+.lobby-link {
+	text-align: center;
+	display: inline;
+	width: 33%;
+}
+
+.lobby-button {
+	text-align: center;
 }
 
 .question-images {
