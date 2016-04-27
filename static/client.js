@@ -20,7 +20,7 @@ function submit() {
 		url: '/api/select-summoner',
 		data: JSON.stringify({
 			summonerName: $("#input-summoner-name").val(),
-			region: $("#select-region").val()
+			platform: $("#select-platform").val()
 		}),
 		success: (data) => {
 			console.log(data);
