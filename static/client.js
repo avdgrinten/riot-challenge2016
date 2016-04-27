@@ -48,24 +48,58 @@ function getTemplate() {
 					event.preventDefault();
 					submit();
 				});
-			}else if(data.state == "lobby-select"){
+			}else if(data.state == "summoner-home"){
 				$('#content').empty();
-				$('#content').append(templates["lobby-select"]({ myself: data.user }));
-				$("#clipboard-button").mouseenter(function(event) {
-					$("#clipboard-button").tooltip("show");
+				$('#content').append(templates["summoner-home"]({ }));
+
+				$("#button-solo").click(function(event) {
+					$.post({
+						url: '/api/play-solo',
+						dataType: "json",
+						success: (data) => {
+
+						},
+						error: (xhr, status, error) => {
+							console.error("Could not retrieve api/play-solo");
+							console.error("Status:", status);
+							console.error(error);
+						}
+					});
 				});
 
-				$("#clipboard-button").mouseleave(function(event) {
-					$("#clipboard-button").tooltip("hide");
-				});
+				$("#button-party").click(function(event) {
+					$.post({
+						url: '/api/play-party',
+						dataType: "json",
+						success: (data) => {
+							console.log(data);
+							if(data.state == "lobby-select"){
+								$('#content').empty();
+								$('#content').append(templates["lobby-select"]({ myself: data.user }));
+								$("#clipboard-button").mouseenter(function(event) {
+									$("#clipboard-button").tooltip("show");
+								});
 
-				$("#clipboard-button").click(function(event) {
-					$(".lobby-link").select();
-					try {
-						document.execCommand('copy');
-					} catch (err) {
-						console.log("Unable to copy link!");
-					}
+								$("#clipboard-button").mouseleave(function(event) {
+									$("#clipboard-button").tooltip("hide");
+								});
+
+								$("#clipboard-button").click(function(event) {
+									$(".lobby-link").select();
+									try {
+										document.execCommand('copy');
+									} catch (err) {
+										console.log("Unable to copy link!");
+									}
+								});
+							}
+						},
+						error: (xhr, status, error) => {
+							console.error("Could not retrieve api/play-party");
+							console.error("Status:", status);
+							console.error(error);
+						}
+					});
 				});
 			}
 		},

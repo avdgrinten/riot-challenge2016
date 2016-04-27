@@ -54,7 +54,8 @@ body {
 
 .question-text,
 .input-text,
-.lobby-text {
+.lobby-text,
+.home-text {
 	padding: 10px;
 	text-align: center;
 	font-size: 2em;
@@ -66,7 +67,8 @@ body {
 	width: 33%;
 }
 
-.lobby-button {
+.lobby-button,
+.home-button {
 	text-align: center;
 }
 
