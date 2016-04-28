@@ -17,14 +17,18 @@ function pollAgain() {
 
 function displayPortal() {
 	function summonerSubmit(event) {
+		var summoner_name = $("#input-summoner-name").val();
+		var platform = $("#select-platform").val();
 		$.post({
 			url: '/backend/portal/select-summoner',
 			data: JSON.stringify({
-				summonerName: $("#input-summoner-name").val(),
-				platform: $("#select-platform").val()
+				summonerName: summoner_name,
+				platform: platform
 			}),
 			success: (data) => {
 				window.location.reload();
+				localStorage.setItem("summonerName", summoner_name);
+				localStorage.setItem("platform", platform);
 			},
 			error: (xhr, status, error) => {
 				console.error("Could not retrieve api/select-summoner");
@@ -79,6 +83,10 @@ function displayPortal() {
 				$('#content').empty();
 				$('#content').append(templates["summoner-select"]({ }));
 				$("#submit").submit(summonerSubmit);
+				if(localStorage.getItem("summonerName") && localStorage.getItem("platform")) {
+					$('#input-summoner-name').val(localStorage.getItem("summonerName"));
+					$('#select-platform').val(localStorage.getItem("platform"));
+				}
 			}else if(data.state == "summoner-home"){
 				$('#content').empty();
 				$('#content').append(templates["summoner-home"]({ }));
