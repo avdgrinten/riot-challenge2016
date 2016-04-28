@@ -1,7 +1,7 @@
 
 function pollAgain() {
 	$.post({
-		url: 'api/poll/{{lobbyId}}',
+		url: '/backend/lobby/{{lobbyId}}/poll',
 		success: (data) => {
 			console.log(data);
 
@@ -15,30 +15,31 @@ function pollAgain() {
 	});
 }
 
-function submit() {
-	$.post({
-		url: '/api/select-summoner',
-		data: JSON.stringify({
-			summonerName: $("#input-summoner-name").val(),
-			platform: $("#select-platform").val()
-		}),
-		success: (data) => {
-			console.log(data);
-			window.location.reload();
-		},
-		error: (xhr, status, error) => {
-			console.error("Could not retrieve api/select-summoner");
-			console.error("Status:", status);
-			console.error(error);
-		},
-		contentType: 'application/json'
-	});
-}
-
 function displayPortal() {
+	function summonerSubmit(event) {
+		$.post({
+			url: '/backend/portal/select-summoner',
+			data: JSON.stringify({
+				summonerName: $("#input-summoner-name").val(),
+				platform: $("#select-platform").val()
+			}),
+			success: (data) => {
+				window.location.reload();
+			},
+			error: (xhr, status, error) => {
+				console.error("Could not retrieve api/select-summoner");
+				console.error("Status:", status);
+				console.error(error);
+			},
+			contentType: 'application/json'
+		});
+		
+		event.preventDefault();
+	}
+
 	function playSoloClick(event) {
 		$.post({
-			url: '/api/play-solo',
+			url: '/backend/portal/play-solo',
 			dataType: 'json',
 			success: (data) => {
 
@@ -53,7 +54,7 @@ function displayPortal() {
 
 	function playPartyClick(event) {
 		$.post({
-			url: '/api/play-party',
+			url: '/backend/portal/play-party',
 			dataType: 'json',
 			success: (data) => {
 				location.assign('/' + data.lobbyId);
@@ -71,17 +72,13 @@ function displayPortal() {
 	};
 
 	$.get({
-		url: '/dynamic/portal',
+		url: '/backend/portal/site',
 		dataType: 'json',
 		success: (data) => {
-			console.log(data);
 			if(data.state == "summoner-select") {
 				$('#content').empty();
 				$('#content').append(templates["summoner-select"]({ }));
-				$("#submit").submit(function(event) {
-					event.preventDefault();
-					submit();
-				});
+				$("#submit").submit(summonerSubmit);
 			}else if(data.state == "summoner-home"){
 				$('#content').empty();
 				$('#content').append(templates["summoner-home"]({ }));
@@ -97,7 +94,7 @@ function displayPortal() {
 			}
 		},
 		error: (xhr, status, error) => {
-			console.error("Could not retrieve /dynamic/portal");
+			console.error("Could not retrieve /backend/portal/site");
 			console.error("Status:", status);
 			console.error(error);
 		}
@@ -106,7 +103,7 @@ function displayPortal() {
 
 function displayLobby(lobby_id) {
 	$.get({
-		url: '/dynamic/lobby/' + lobby_id,
+		url: '/backend/lobby/' + lobby_id + '/site',
 		dataType: "json",
 		success: data => {
 			if(data.state == 'lobby-select') {
@@ -133,7 +130,7 @@ function displayLobby(lobby_id) {
 			}
 		},
 		error: (xhr, status, error) => {
-			console.error("Could not retrieve /dynamic/lobby/:lobbyId");
+			console.error("Could not retrieve /backend/lobby/{lobbyId}/site");
 			console.error("Status:", status);
 			console.error(error);
 		}
