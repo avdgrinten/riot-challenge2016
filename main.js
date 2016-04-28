@@ -4,17 +4,22 @@
 
 const assert = require('assert');
 const fs = require('fs');
+const http = require('http');
 const minimist = require('minimist');
 const mongodb = require('mongodb');
+const express = require('express');
 
 const setup = require('./lib/setup.js');
 const crawl = require('./lib/crawl.js');
 const gameLogic = require('./lib/game-logic.js');
-const expressServer = require('./lib/express-server.js');
+const Frontend = require('./lib/frontend.js');
+const Backend = require('./lib/backend.js');
 
 let config;
 let db;
 let logic;
+let frontend;
+let backend;
 
 let readConfig = function() {
 	return new Promise((resolve, reject) => {
@@ -98,10 +103,23 @@ let main = function() {
 			.then(connectDb)
 			.then(initLogic)
 			.then(() => {
-				let server = new expressServer.Server({
+				frontend = new Frontend({ });
+			})
+			.then(() => {
+				backend = new Backend({
 					logic: logic
 				});
-				return server.run(config.serverPort);
+			})
+			.then(() => {
+				const app = express();
+				app.use('/static', express.static(__dirname + '/static/'));
+				app.use(frontend.setupApp());
+				app.use(backend.setupApp());
+
+				const http_server = http.createServer(app);
+				http_server.listen(config.serverPort);
+
+				console.log("Server running on port: " + config.serverPort);
 			});
 		}
 	});
