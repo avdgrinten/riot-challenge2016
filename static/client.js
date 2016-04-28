@@ -42,7 +42,7 @@ function displayPortal() {
 			url: '/backend/portal/play-solo',
 			dataType: 'json',
 			success: (data) => {
-
+				location.assign('/' + data.lobbyId);
 			},
 			error: (xhr, status, error) => {
 				console.error("Could not retrieve api/play-solo");
@@ -123,6 +123,13 @@ function displayLobby(lobby_id) {
 					}
 				});
 
+				$('#content').empty().append(dom);
+			}else if(data.state == 'active-game') {
+				var source = templates['active-game']({
+					myself: data.user
+				});
+				var dom = $($.parseHTML(source));
+				
 				$('#content').empty().append(dom);
 			}else{
 				// TODO: replace this by a user-visible error message
