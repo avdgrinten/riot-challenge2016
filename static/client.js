@@ -5,22 +5,6 @@ function displayError(error) {
 	}));
 }
 
-function pollAgain() {
-	$.post({
-		url: '/backend/lobby/{{lobbyId}}/poll',
-		success: (data) => {
-			console.log(data);
-
-			pollAgain();
-		},
-		error: (xhr, status, error) => {
-			console.error("Could not retrieve api/poll/:lobby endpoint");
-			console.error("Status:", status);
-			console.error(error);
-		}
-	});
-}
-
 function displayPortal() {
 	function summonerSubmit(event) {
 		var summoner_name = $("#input-summoner-name").val();
@@ -116,6 +100,31 @@ function displayPortal() {
 }
 
 function displayLobby(lobby_id) {
+	let sequence_id = 0;
+
+	function pollUpdates() {
+		$.post({
+			url: '/backend/lobby/' + lobby_id + '/updates?sequenceId=' + sequence_id,
+			dataType: "json",
+			success: (data) => {
+				data.forEach(function(update) {
+					console.log(update);
+					if(update.sequenceId != sequence_id)
+						throw new Error("Out-of-order update");
+
+					sequence_id++;
+				});
+
+				pollUpdates();
+			},
+			error: (xhr, status, error) => {
+				console.error("Could not retrieve api/poll/:lobby endpoint");
+				console.error("Status:", status);
+				console.error(error);
+			}
+		});
+	}
+
 	$.get({
 		url: '/backend/lobby/' + lobby_id + '/site',
 		dataType: "json",
@@ -145,6 +154,8 @@ function displayLobby(lobby_id) {
 				var dom = $($.parseHTML(source));
 				
 				$('#content').empty().append(dom);
+
+				pollUpdates();
 			}else{
 				// TODO: replace this by a user-visible error message
 				var error = {
@@ -164,8 +175,6 @@ function displayLobby(lobby_id) {
 }
 
 $(document).ready(function() {
-	//pollAgain();
-
 	switch($('html').data('site')) {
 	case 'portal':
 		displayPortal();
