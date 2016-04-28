@@ -66,6 +66,10 @@ function displayPortal() {
 		});
 	}
 
+	function switchSummoner(event) {
+		
+	};
+
 	$.get({
 		url: '/dynamic/portal',
 		dataType: 'json',
@@ -82,6 +86,12 @@ function displayPortal() {
 				$('#content').empty();
 				$('#content').append(templates["summoner-home"]({ }));
 
+				$('.header-content').empty();
+				$('.header-content').append(templates["header-content"]({
+					myself: data.user
+				}));
+
+				$("#button-switch-summoner").click(switchSummoner);
 				$("#button-solo").click(playSoloClick);
 				$("#button-party").click(playPartyClick);
 			}
