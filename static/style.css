@@ -10,6 +10,12 @@ body {
 	height: 100%;
 }
 
+.alert {
+	position: absolute;
+	top: 25%;
+	left: 30%;
+}
+
 .header {
 	background-color: #F7F7F9;
 	border-bottom: 1px solid #E1E1E8;
@@ -78,7 +84,12 @@ body {
 
 .lobby-button,
 .home-button,
-.switch-summoner-button {
+.switch-summoner-button,
+.dissmiss-alert-button {
+	text-align: center;
+}
+
+.center {
 	text-align: center;
 }
 

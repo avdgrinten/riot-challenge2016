@@ -1,4 +1,10 @@
 
+function displayError(error) {
+	$('body').append(templates["alert"]({ 
+		error: error
+	}));
+}
+
 function pollAgain() {
 	$.post({
 		url: '/backend/lobby/{{lobbyId}}/poll',
@@ -141,6 +147,11 @@ function displayLobby(lobby_id) {
 				$('#content').empty().append(dom);
 			}else{
 				// TODO: replace this by a user-visible error message
+				var error = {
+					message: "Ouch, the server gave us a response we don't understand.",
+					details: "Error details: Illegal .state"
+				}
+				displayError(error);
 				throw new Error("Unexpected data.state");
 			}
 		},
