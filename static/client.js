@@ -160,6 +160,27 @@ function displayLobby(lobby_id) {
 		});
 	}
 
+	function answerClick(event) {
+		$.post({
+			url: '/backend/lobby/' + lobby_id + '/lock-answer',
+			data: JSON.stringify({
+				answer: {
+					championId: $(event.currentTarget).data('champion')
+				}
+			}),
+			contentType: 'application/json',
+			success: (data) => {
+				console.log(data);
+			},
+			error: function(xhr) {
+				displayError({
+					url: "/backend/lobby/{lobbyId}/lock-answer",
+					httpStatus: xhr.status
+				});
+			}
+		});
+	}
+
 	function displayUpdate(type, data) {
 		if(type == 'question') {
 			var source = templates['question']({
@@ -167,6 +188,7 @@ function displayLobby(lobby_id) {
 				choices: data.choices
 			});
 			var dom = $($.parseHTML(source));
+			$('.lock-answer', dom).on('click', answerClick);
 			$('#question-area').empty().append(dom);
 		}else{
 			displayError({
