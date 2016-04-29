@@ -13,7 +13,7 @@ function displayPortal() {
 		$("#btn-submit").prepend(templates["loading"]({ 
 			size: "fa-lg"
 		}));
-		$("#button-solo").prop("disabled",true);
+		$("#btn-submit").prop("disabled",true);
 
 		$.post({
 			url: '/backend/portal/select-summoner',
@@ -22,7 +22,9 @@ function displayPortal() {
 				platform: platform
 			}),
 			success: (data) => {
-				window.location.reload();
+				navigateTo({
+					site: "portal"
+				});
 				localStorage.setItem("summonerName", summoner_name);
 				localStorage.setItem("platform", platform);
 			},
@@ -49,7 +51,10 @@ function displayPortal() {
 			url: '/backend/portal/play-solo',
 			dataType: 'json',
 			success: (data) => {
-				location.assign('/' + data.lobbyId);
+				navigateTo({
+					site: "lobby",
+					lobbyId: data.lobbyId
+				});
 			},
 			error: function(xhr) {
 				displayError({
@@ -70,7 +75,10 @@ function displayPortal() {
 			url: '/backend/portal/play-party',
 			dataType: 'json',
 			success: (data) => {
-				location.assign('/' + data.lobbyId);
+				navigateTo({
+					site: "lobby",
+					lobbyId: data.lobbyId
+				});
 			},
 			error: function(xhr) {
 				displayError({
@@ -216,16 +224,46 @@ function displayLobby(lobby_id) {
 	});
 }
 
-$(document).ready(function() {
-	switch($('html').data('site')) {
+function switchSite(state) {
+	console.log("switchSite");
+	console.log(state);
+	switch(state.site) {
 	case 'portal':
 		displayPortal();
 		break;
 	case 'lobby':
-		displayLobby($('html').data('lobbyId'));
+		displayLobby(state.lobbyId);
 		break;
 	default:
 		// TODO: replace this by a user-visible error message
 		throw new Error("Unexpected data-site");
 	}
+}
+
+function navigateTo(state) {
+	console.log("navigateTo");
+	console.log(state);
+	var url;
+	if(state.site == 'portal') {
+		url = "/";
+	}else if(state.site == 'lobby'){
+		url = "/" + state.lobbyId;
+	}else{
+		throw new Error("No such state!");
+	}
+	window.history.pushState(state, "Guess my main!", url);
+	switchSite(state);
+}
+
+window.onpopstate = function(event) {
+	console.log("onpopstate");
+	console.log(event.state);
+	switchSite(event.state);
+};
+
+$(document).ready(function() {
+	switchSite({
+		site: $('html').data('site'),
+		lobbyId: $('html').data('lobbyId')
+	});
 });
