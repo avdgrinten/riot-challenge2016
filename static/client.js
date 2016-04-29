@@ -134,9 +134,9 @@ function displayLobby(lobby_id) {
 			dataType: "json",
 			success: (data) => {
 				data.forEach(function(update) {
-					console.log(update);
 					if(update.sequenceId != sequence_id)
 						throw new Error("Out-of-order update");
+					displayUpdate(update.type, update.data);
 
 					sequence_id++;
 				});
@@ -152,8 +152,24 @@ function displayLobby(lobby_id) {
 		});
 	}
 
-	$('#content').empty().prepend(templates["loading"]({ }));
+	function displayUpdate(type, data) {
+		if(type == 'question') {
+			var source = templates['question']({
+				mastered: data.mastered,
+				choices: data.choices
+			});
+			console.log(source);
+			var dom = $($.parseHTML(source));
+			$('#question-area').empty().append(dom);
+		}else{
+			displayError({
+				message: "Ouch, the server gave us a response we don't understand.",
+				details: "Illegal update information"
+			});
+		}
+	}
 
+	$('#content').empty().prepend(templates["loading"]({ }));
 	$.get({
 		url: '/backend/lobby/' + lobby_id + '/site',
 		dataType: "json",
