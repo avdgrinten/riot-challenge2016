@@ -4,8 +4,18 @@
 		<span aria-hidden="true">&times;</span>
 	</button>
 	<strong>Error!</strong>
-	{{error.message}}
 	<br>
-	Details: {{error.details}}
+	{{#if error.message}}
+		{{error.message}}
+		<br>
+		Details: {{error.details}}
+	{{/if}}
+	{{#if error.url}}
+		Something went wrong while communicating with the server.
+		<br>
+		Url: {{error.url}}
+		<br>
+		HTTP status: {{error.httpStatus}}
+	{{/if}}
 </div>
 

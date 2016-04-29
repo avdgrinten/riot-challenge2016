@@ -20,10 +20,11 @@ function displayPortal() {
 				localStorage.setItem("summonerName", summoner_name);
 				localStorage.setItem("platform", platform);
 			},
-			error: (xhr, status, error) => {
-				console.error("Could not retrieve api/select-summoner");
-				console.error("Status:", status);
-				console.error(error);
+			error: function(xhr) {
+				displayError({
+					url: "api/select-summoner",
+					httpStatus: xhr.status
+				});
 			},
 			contentType: 'application/json'
 		});
@@ -38,10 +39,11 @@ function displayPortal() {
 			success: (data) => {
 				location.assign('/' + data.lobbyId);
 			},
-			error: (xhr, status, error) => {
-				console.error("Could not retrieve api/play-solo");
-				console.error("Status:", status);
-				console.error(error);
+			error: function(xhr) {
+				displayError({
+					url: "api/play-solo",
+					httpStatus: xhr.status
+				});
 			}
 		});
 	}
@@ -53,10 +55,11 @@ function displayPortal() {
 			success: (data) => {
 				location.assign('/' + data.lobbyId);
 			},
-			error: (xhr, status, error) => {
-				console.error("Could not retrieve api/play-party");
-				console.error("Status:", status);
-				console.error(error);
+			error: function(xhr) {
+				displayError({
+					url: "api/play-party",
+					httpStatus: xhr.status
+				});
 			}
 		});
 	}
@@ -91,10 +94,11 @@ function displayPortal() {
 				$("#button-party").click(playPartyClick);
 			}
 		},
-		error: (xhr, status, error) => {
-			console.error("Could not retrieve /backend/portal/site");
-			console.error("Status:", status);
-			console.error(error);
+		error: function(xhr) {
+			displayError({
+				url: "/backend/portal/site",
+				httpStatus: xhr.status
+			});
 		}
 	});
 }
@@ -117,10 +121,11 @@ function displayLobby(lobby_id) {
 
 				pollUpdates();
 			},
-			error: (xhr, status, error) => {
-				console.error("Could not retrieve api/poll/:lobby endpoint");
-				console.error("Status:", status);
-				console.error(error);
+			error: function(xhr) {
+				displayError({
+					url: "api/poll/:lobby",
+					httpStatus: xhr.status
+				});
 			}
 		});
 	}
@@ -157,18 +162,17 @@ function displayLobby(lobby_id) {
 
 				pollUpdates();
 			}else{
-				// TODO: replace this by a user-visible error message
-				var error = {
+				displayError({
 					message: "Ouch, the server gave us a response we don't understand.",
 					details: "Illegal .state"
-				}
-				displayError(error);
+				});
 			}
 		},
-		error: (xhr, status, error) => {
-			console.error("Could not retrieve /backend/lobby/{lobbyId}/site");
-			console.error("Status:", status);
-			console.error(error);
+		error: function(xhr) {
+			displayError({
+				url: "/backend/lobby/{lobbyId}/site",
+				httpStatus: xhr.status
+			});
 		}
 	});
 }

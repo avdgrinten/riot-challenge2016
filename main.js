@@ -114,7 +114,7 @@ let main = function() {
 				const app = express();
 				app.use('/static', express.static(__dirname + '/static/'));
 				app.use(frontend.setupApp());
-				app.use(backend.setupApp());
+			//	app.use(backend.setupApp());
 
 				const http_server = http.createServer(app);
 				http_server.listen(config.serverPort);
