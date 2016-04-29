@@ -9,6 +9,12 @@ function displayPortal() {
 	function summonerSubmit(event) {
 		var summoner_name = $("#input-summoner-name").val();
 		var platform = $("#select-platform").val();
+
+		$("#btn-submit").append(templates["loading"]({ 
+			size: "fa-lg"
+		}));
+		$("#button-solo").prop("disabled",true);
+
 		$.post({
 			url: '/backend/portal/select-summoner',
 			data: JSON.stringify({
@@ -33,6 +39,12 @@ function displayPortal() {
 	}
 
 	function playSoloClick(event) {
+		$("#button-solo").append(templates["loading"]({ 
+			size: "fa-lg"
+		}));
+		$("#button-solo").prop("disabled",true);
+
+
 		$.post({
 			url: '/backend/portal/play-solo',
 			dataType: 'json',
@@ -49,6 +61,11 @@ function displayPortal() {
 	}
 
 	function playPartyClick(event) {
+		$("#button-party").append(templates["loading"]({ 
+			size: "fa-lg"
+		}));
+		$("#button-party").prop("disabled",true);
+
 		$.post({
 			url: '/backend/portal/play-party',
 			dataType: 'json',
@@ -65,7 +82,10 @@ function displayPortal() {
 	}
 
 	function switchSummoner(event) {
-		
+		$("#button-switch-summoner").append(templates["loading"]({ 
+			size: "fa-lg"
+		}));
+		$("#button-switch-summoner").prop("disabled",true);
 	};
 
 	$('#content').empty().prepend(templates["loading"]({ }));

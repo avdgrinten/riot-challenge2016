@@ -1,7 +1,14 @@
 
+{{#if size}}
+<span class="center">
+	<i class="fa fa-spinner fa-pulse {{size}} fa-fw margin-bottom"></i>
+	<span class="sr-only">Loading...</span>
+</span>
+{{else}}
 <div id="content" class="col-xs-12 col-sm-12 col-md-12 no-padding">
 	<div class="center">
 		<i class="fa fa-spinner fa-pulse fa-5x fa-fw margin-bottom"></i>
 		<span class="sr-only">Loading...</span>
 	</div>
 </div>
+{{/if}}
