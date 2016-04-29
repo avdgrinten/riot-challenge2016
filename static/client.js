@@ -1,6 +1,6 @@
 
 function displayError(error) {
-	$('#content').append(templates["alert"]({ 
+	$('#content').prepend(templates["alert"]({ 
 		error: error
 	}));
 }
@@ -68,6 +68,8 @@ function displayPortal() {
 		
 	};
 
+	$('#content').empty().prepend(templates["loading"]({ }));
+
 	$.get({
 		url: '/backend/portal/site',
 		dataType: 'json',
@@ -129,6 +131,8 @@ function displayLobby(lobby_id) {
 			}
 		});
 	}
+
+	$('#content').empty().prepend(templates["loading"]({ }));
 
 	$.get({
 		url: '/backend/lobby/' + lobby_id + '/site',

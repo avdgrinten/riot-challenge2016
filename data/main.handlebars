@@ -5,6 +5,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
 	<link rel="stylesheet" href="static/style.css">
 	<script type="application/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
 	<script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.runtime.min.js"></script>
@@ -18,9 +19,12 @@
 				<h1 class="header-heading">Guess my main!</h1>
 				<div class="header-content"></div>
 			</div>
-			<div id="content" class="col-xs-12 col-sm-12 col-md-12 no-padding"></div>
-
-			<!-- insert html here! -->
+			<div id="content" class="col-xs-12 col-sm-12 col-md-12 no-padding">
+				<div class="center">
+					<i class="fa fa-spinner fa-pulse fa-5x fa-fw margin-bottom"></i>
+					<span class="sr-only">Loading...</span>
+				</div>
+			</div>
 		</div>
 	</div>
 
