@@ -10,7 +10,7 @@ function displayPortal() {
 		var summoner_name = $("#input-summoner-name").val();
 		var platform = $("#select-platform").val();
 
-		$("#btn-submit").append(templates["loading"]({ 
+		$("#btn-submit").prepend(templates["loading"]({ 
 			size: "fa-lg"
 		}));
 		$("#button-solo").prop("disabled",true);
@@ -39,7 +39,7 @@ function displayPortal() {
 	}
 
 	function playSoloClick(event) {
-		$("#button-solo").append(templates["loading"]({ 
+		$("#button-solo").prepend(templates["loading"]({ 
 			size: "fa-lg"
 		}));
 		$("#button-solo").prop("disabled",true);
@@ -61,7 +61,7 @@ function displayPortal() {
 	}
 
 	function playPartyClick(event) {
-		$("#button-party").append(templates["loading"]({ 
+		$("#button-party").prepend(templates["loading"]({ 
 			size: "fa-lg"
 		}));
 		$("#button-party").prop("disabled",true);
@@ -82,7 +82,7 @@ function displayPortal() {
 	}
 
 	function switchSummoner(event) {
-		$("#button-switch-summoner").append(templates["loading"]({ 
+		$("#button-switch-summoner").prepend(templates["loading"]({ 
 			size: "fa-lg"
 		}));
 		$("#button-switch-summoner").prop("disabled",true);
