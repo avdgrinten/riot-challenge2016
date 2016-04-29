@@ -158,7 +158,6 @@ function displayLobby(lobby_id) {
 				mastered: data.mastered,
 				choices: data.choices
 			});
-			console.log(source);
 			var dom = $($.parseHTML(source));
 			$('#question-area').empty().append(dom);
 		}else{
