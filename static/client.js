@@ -22,7 +22,7 @@ function displayPortal() {
 				platform: platform
 			}),
 			success: (data) => {
-				navigateTo({
+				refreshTo({
 					site: "portal"
 				});
 				localStorage.setItem("summonerName", summoner_name);
@@ -247,8 +247,6 @@ function displayLobby(lobby_id) {
 }
 
 function switchSite(state) {
-	console.log("switchSite");
-	console.log(state);
 	switch(state.site) {
 	case 'portal':
 		displayPortal();
@@ -262,30 +260,49 @@ function switchSite(state) {
 	}
 }
 
-function navigateTo(state) {
-	console.log("navigateTo");
-	console.log(state);
-	var url;
-	if(state.site == 'portal') {
-		url = "/";
-	}else if(state.site == 'lobby'){
-		url = "/" + state.lobbyId;
-	}else{
+function describeState(state) {
+	switch(state.site) {
+	case 'portal':
+		return {
+			url: '/',
+			title: 'Guess my main!',
+		};
+	case 'lobby':
+		return {
+			url: '/' + state.lobbyId,
+			title: 'Guess my main!',
+		};
+	default:
 		throw new Error("No such state!");
 	}
-	window.history.pushState(state, "Guess my main!", url);
+}
+
+function refreshTo(state) {
+	var desc = describeState(state);
+	
+	window.history.replaceState(state, desc.title, desc.url);
+	switchSite(state);
+}
+
+function navigateTo(state) {
+	var desc = describeState(state);
+	
+	window.history.pushState(state, desc.title, desc.url);
 	switchSite(state);
 }
 
 window.onpopstate = function(event) {
-	console.log("onpopstate");
-	console.log(event.state);
 	switchSite(event.state);
 };
 
 $(document).ready(function() {
-	switchSite({
+	let state = {
 		site: $('html').data('site'),
 		lobbyId: $('html').data('lobbyId')
-	});
+	};
+	let desc = describeState(state);
+
+	window.history.replaceState(state, desc.title, desc.url);
+	switchSite(state);
 });
+
