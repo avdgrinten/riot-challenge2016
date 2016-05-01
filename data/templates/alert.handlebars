@@ -1,21 +1,22 @@
 
-<div class="alert alert-danger alert-dismissible" role="alert">
-	<button class="close dismiss-alert" data-dismiss="alert">
-		<span aria-hidden="true">&times;</span>
-	</button>
-	<strong>Error!</strong>
-	<br>
-	{{#if error.message}}
-		{{error.message}}
+<div class="col-xs-12">
+	<div class="alert alert-danger alert-dismissible" role="alert">
+		<button class="close dismiss-alert" data-dismiss="alert">
+			<span aria-hidden="true">&times;</span>
+		</button>
+		<strong>Error!</strong>
 		<br>
-		Details: {{error.details}}
-	{{/if}}
-	{{#if error.url}}
-		Something went wrong while communicating with the server.
-		<br>
-		URL: <code>{{error.url}}</code>
-		<br>
-		HTTP status: <code>{{error.httpStatus}}</code>
-	{{/if}}
+		{{#if error.message}}
+			{{error.message}}
+			<br>
+			Details: {{error.details}}
+		{{/if}}
+		{{#if error.url}}
+			Something went wrong while communicating with the server.
+			<br>
+			URL: <code>{{error.url}}</code>
+			<br>
+			HTTP status: <code>{{error.httpStatus}}</code>
+		{{/if}}
+	</div>
 </div>
-

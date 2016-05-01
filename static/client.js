@@ -1,6 +1,6 @@
 
 function displayError(error) {
-	$('#content').prepend(templates["alert"]({ 
+	$('#notifications').prepend(templates["alert"]({ 
 		error: error
 	}));
 }
@@ -124,7 +124,9 @@ PortalScreen.prototype.display = function() {
 				}
 			}else if(data.state == "summoner-home"){
 				$('#content').empty();
-				$('#content').append(templates["summoner-home"]({ }));
+				$('#content').append(templates["summoner-home"]({ 
+					myself: data.user
+				}));
 
 				$('.header-content').empty();
 				$('.header-content').append(templates["header-content"]({
@@ -230,7 +232,6 @@ LobbyScreen.prototype.display = function() {
 				console.log(state);
 
 				var source = templates['lobby-select']({
-					myself: data.user,
 					shareUrl: state.url
 				});
 

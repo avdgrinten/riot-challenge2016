@@ -1,21 +1,37 @@
 
-html {
-	height: 100%;
-}
-
 body {
 	font-family: helvetica;
 	background-image: url("background.png");
 	background-attachment: fixed;
-	height: 100%;
+	background-repeat: no-repeat;
+	background-size: cover;
 }
 
 .alert {
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
-.header {
-	background-color: #F7F7F9;
+.loader {
+	text-align: center;
+	padding: 0px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+#overlay {
+	margin-top: 10px;
+}
+
+#content,
+#notifications {
+	background: rgba(255, 255, 255, 0.9);
+}
+
+#header {
+	background-color: rgba(247, 247, 247, 1);
 	border-bottom: 1px solid #E1E1E8;
+	padding: 0px;
 }
 
 .header-content {
@@ -27,31 +43,15 @@ body {
 	float: left;
 }
 
-.left-column {
-	background-color: #F7F7F9;
-	border-right: 1px solid #E1E1E8;
+#summoner-list {
+	padding: 0px;
 }
 
-.right-column {
-	background-color: #F7F7F9;
-	border-left: 1px solid #E1E1E8;
-}
-
-.no-padding {
-	padding: 0;
-}
-
-.container {
-	background: rgba(255, 255, 255, 1);
-	height: 100%;
-}
-
-.row {
-	height: 100%;
-}
-
-.submit-div {
+.submit-div,
+.game-mode-div {
 	text-align: center;
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 .timer {
