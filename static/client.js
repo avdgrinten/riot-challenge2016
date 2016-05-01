@@ -5,7 +5,19 @@ function displayError(error) {
 	}));
 }
 
-function displayPortal() {
+var currentScreen = null;
+
+function displayScreen(screen) {
+	if(currentScreen)
+		currentScreen.cancel();
+	currentScreen = screen;
+	screen.display();
+}
+
+function PortalScreen() {
+
+}
+PortalScreen.prototype.display = function() {
 	function summonerSubmit(event) {
 		var summoner_name = $("#input-summoner-name").val();
 		var platform = $("#select-platform").val();
@@ -131,14 +143,21 @@ function displayPortal() {
 			});
 		}
 	});
-}
+};
+PortalScreen.prototype.cancel = function() {
 
-function displayLobby(lobby_id) {
-	let sequence_id = 0;
+};
+
+function LobbyScreen(lobby_id) {
+	this.lobbyId = lobby_id;
+}
+LobbyScreen.prototype.display = function() {
+	var self = this;
+	var sequence_id = 0;
 
 	function pollUpdates() {
 		$.post({
-			url: '/backend/lobby/' + lobby_id + '/updates?sequenceId=' + sequence_id,
+			url: '/backend/lobby/' + self.lobbyId + '/updates?sequenceId=' + sequence_id,
 			dataType: "json",
 			success: (data) => {
 				data.forEach(function(update) {
@@ -162,7 +181,7 @@ function displayLobby(lobby_id) {
 
 	function answerClick(event) {
 		$.post({
-			url: '/backend/lobby/' + lobby_id + '/lock-answer',
+			url: '/backend/lobby/' + self.lobbyId + '/lock-answer',
 			data: JSON.stringify({
 				answer: {
 					championId: $(event.currentTarget).data('champion')
@@ -200,7 +219,7 @@ function displayLobby(lobby_id) {
 
 	$('#content').empty().prepend(templates["loading"]({ }));
 	$.get({
-		url: '/backend/lobby/' + lobby_id + '/site',
+		url: '/backend/lobby/' + self.lobbyId + '/site',
 		dataType: "json",
 		success: data => {
 			if(data.state == 'lobby-select') {
@@ -244,15 +263,18 @@ function displayLobby(lobby_id) {
 			});
 		}
 	});
-}
+};
+LobbyScreen.prototype.cancel = function() {
+
+};
 
 function switchSite(state) {
 	switch(state.site) {
 	case 'portal':
-		displayPortal();
+		displayScreen(new PortalScreen());
 		break;
 	case 'lobby':
-		displayLobby(state.lobbyId);
+		displayScreen(new LobbyScreen(state.lobbyId));
 		break;
 	default:
 		// TODO: replace this by a user-visible error message
@@ -296,11 +318,11 @@ window.onpopstate = function(event) {
 };
 
 $(document).ready(function() {
-	let state = {
+	var state = {
 		site: $('html').data('site'),
 		lobbyId: $('html').data('lobbyId')
 	};
-	let desc = describeState(state);
+	var desc = describeState(state);
 
 	window.history.replaceState(state, desc.title, desc.url);
 	switchSite(state);
