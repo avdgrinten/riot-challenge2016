@@ -114,15 +114,7 @@ PortalScreen.prototype.display = function() {
 		url: '/backend/portal/site',
 		dataType: 'json',
 		success: (data) => {
-			if(data.state == "summoner-select") {
-				$('#content').empty();
-				$('#content').append(templates["summoner-select"]({ }));
-				$("#submit").submit(summonerSubmit);
-				if(localStorage.getItem("summonerName") && localStorage.getItem("platform")) {
-					$('#input-summoner-name').val(localStorage.getItem("summonerName"));
-					$('#select-platform').val(localStorage.getItem("platform"));
-				}
-			}else if(data.state == "summoner-home"){
+			if(data.state == "summoner-home"){
 				$('#content').empty();
 				$('#content').append(templates["summoner-home"]({ 
 					myself: data.user
@@ -136,13 +128,29 @@ PortalScreen.prototype.display = function() {
 				$("#button-switch-summoner").click(switchSummoner);
 				$("#button-solo").click(playSoloClick);
 				$("#button-party").click(playPartyClick);
+			}else{
+				displayError({
+					message: "Ouch, the server gave us a response we don't understand.",
+					details: "Illegal state",
+					data: data.state
+				});
 			}
 		},
 		error: function(xhr) {
-			displayError({
-				url: "/backend/portal/site",
-				httpStatus: xhr.status
-			});
+			if(xhr.status == 400 && xhr.responseJSON.error == 'user-required') {
+				$('#content').empty();
+				$('#content').append(templates["summoner-select"]({ }));
+				$("#submit").submit(summonerSubmit);
+				if(localStorage.getItem("summonerName") && localStorage.getItem("platform")) {
+					$('#input-summoner-name').val(localStorage.getItem("summonerName"));
+					$('#select-platform').val(localStorage.getItem("platform"));
+				}
+			}else{
+				displayError({
+					url: "/backend/portal/site",
+					httpStatus: xhr.status
+				});
+			}
 		}
 	});
 };
