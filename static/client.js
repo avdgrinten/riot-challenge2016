@@ -192,6 +192,7 @@ LobbyScreen.prototype.display = function() {
 			contentType: 'application/json',
 			success: (data) => {
 				console.log(data);
+				$('.lock-answer').attr('disabled', 'disabled');
 			},
 			error: function(xhr) {
 				displayError({
@@ -203,6 +204,7 @@ LobbyScreen.prototype.display = function() {
 	}
 
 	function displayUpdate(type, data) {
+		console.log(data);
 		if(type == 'question') {
 			var source = templates['question']({
 				mastered: data.mastered,
@@ -211,6 +213,25 @@ LobbyScreen.prototype.display = function() {
 			var dom = $($.parseHTML(source));
 			$('.lock-answer', dom).on('click', answerClick);
 			$('#question-area').empty().append(dom);
+		}else if(type == 'join-user'){
+			$('#summoner-list').append(templates["summoner"]({
+				index: data.index,
+				summoner: data.user
+			}));
+		}else if(type == 'seconds-left'){
+			if(data.seconds == 0){
+				$('#timer-text').text("The time is up");
+			}else if(data.seconds == 1) {
+				$('#timer-text').text("1 second left");
+			}else{
+				$('#timer-text').text(data.seconds + " seconds left");
+			}
+		}else if(type == 'correction'){
+		
+		}else if(type == 'scores'){
+			data.forEach(function(entry) {
+				$('.summoner[data-index=' + entry.index + '] .score').text(entry.score);
+			});
 		}else{
 			displayError({
 				message: "Ouch, the server gave us a response we don't understand.",

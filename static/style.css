@@ -54,9 +54,12 @@ body {
 	margin-bottom: 10px;
 }
 
-.timer {
-	font-size: 1em;
+#timer-container {
 	text-align: center;
+}
+
+#timer-text {
+	font-size: 2em;
 }
 
 .champ-select {
