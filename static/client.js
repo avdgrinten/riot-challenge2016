@@ -153,7 +153,7 @@ PortalScreen.prototype.cancel = function() {
 };
 
 function LobbyScreen(lobby_id) {
-	this.lobbyId = lobby_id;
+	this._lobbyId = lobby_id;
 }
 LobbyScreen.prototype.display = function() {
 	var self = this;
@@ -161,7 +161,7 @@ LobbyScreen.prototype.display = function() {
 
 	function pollUpdates() {
 		$.post({
-			url: '/backend/lobby/' + self.lobbyId + '/updates?sequenceId=' + sequence_id,
+			url: '/backend/lobby/' + self._lobbyId + '/updates?sequenceId=' + sequence_id,
 			dataType: "json",
 			success: (data) => {
 				data.forEach(function(update) {
@@ -187,7 +187,7 @@ LobbyScreen.prototype.display = function() {
 		$(this).append(templates['loading-pick']({ }));
 		$('.lock-answer').attr('disabled', 'disabled');
 		$.post({
-			url: '/backend/lobby/' + self.lobbyId + '/lock-answer',
+			url: '/backend/lobby/' + self._lobbyId + '/lock-answer',
 			data: JSON.stringify({
 				answer: {
 					championId: $(this).data('champion')
@@ -250,13 +250,13 @@ LobbyScreen.prototype.display = function() {
 
 	$('#content').empty().prepend(templates["loading-page"]({ }));
 	$.get({
-		url: '/backend/lobby/' + self.lobbyId + '/site',
+		url: '/backend/lobby/' + self._lobbyId + '/site',
 		dataType: "json",
 		success: data => {
 			if(data.state == 'lobby-select') {
 				var state = describeState({
 					site: "lobby",
-					lobbyId: self.lobbyId
+					lobbyId: self._lobbyId
 				});
 
 				var source = templates['lobby-select']({
@@ -295,15 +295,36 @@ LobbyScreen.prototype.display = function() {
 			}
 		},
 		error: function(xhr) {
-			displayError({
-				url: "/backend/lobby/{lobbyId}/site",
-				httpStatus: xhr.status,
-				data: JSON.stringify(xhr.responseJSON, null, 4)
-			});
+			if(xhr.status == 403 && xhr.responseJSON.error == 'user-not-in-lobby') {
+				displayScreen(new JoinLobbyScreen(self._lobbyId));
+			}else{
+				displayError({
+					url: "/backend/lobby/{lobbyId}/site",
+					httpStatus: xhr.status,
+					data: JSON.stringify(xhr.responseJSON, null, 4)
+				});
+			}
 		}
 	});
 };
 LobbyScreen.prototype.cancel = function() {
+};
+
+function JoinLobbyScreen(lobby_id) {
+	this._lobbyId = lobby_id;
+}
+JoinLobbyScreen.prototype.display = function() {
+	var self = this;
+
+	$.post({
+		url: '/backend/lobby/' + self._lobbyId + '/join',
+		dataType: "json",
+		success: data => {
+			console.log(data);
+		}
+	});
+};
+JoinLobbyScreen.prototype.cancel = function() {
 
 };
 
