@@ -195,7 +195,6 @@ LobbyScreen.prototype.display = function() {
 			}),
 			contentType: 'application/json',
 			success: (data) => {
-				console.log(data);
 				$(event.currentTarget).addClass('locked-pick');
 				$(".loading-pick", this).remove();
 			},
@@ -209,11 +208,12 @@ LobbyScreen.prototype.display = function() {
 	}
 
 	function displayUpdate(type, data) {
-		console.log(data);
-		if(type == 'question') {
+		if(type == 'round') {
 			var source = templates['question']({
-				mastered: data.mastered,
-				choices: data.choices
+				round: data.round,
+				numRounds: data.numRounds,
+				mastered: data.question.mastered,
+				choices: data.question.choices
 			});
 			var dom = $($.parseHTML(source));
 			$('.lock-answer', dom).on('click', answerClick);
@@ -257,7 +257,6 @@ LobbyScreen.prototype.display = function() {
 					site: "lobby",
 					lobbyId: self.lobbyId
 				});
-				console.log(state);
 
 				var source = templates['lobby-select']({
 					shareUrl: frontendUrl + state.url

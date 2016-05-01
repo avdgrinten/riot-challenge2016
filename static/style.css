@@ -75,12 +75,18 @@ body {
 	background-color: #49FA5D;
 }
 
-#timer-container {
-	text-align: center;
+#round-container {
+	float: right;
 }
 
-#timer-text {
-	font-size: 2em;
+#timer-container {
+	text-align: center;
+	float: left;
+}
+
+#timer-container,
+#round-container {
+	font-size: 1.5em;
 }
 
 .champ-select {

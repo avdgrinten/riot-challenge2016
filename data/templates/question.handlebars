@@ -1,20 +1,28 @@
 
-<p class="question-text">This player has mastered</p>
-<div class="question-images">
-	{{#each mastered}}
-		<img src="http://ddragon.leagueoflegends.com/cdn/6.8.1/img/champion/{{key}}.png" width="80" height="80">
-	{{/each}}
-</div>
-<p class="question-text">What's his main?</p>
-<div class="champ-select">
-	<div class="btn-group" role="group">
-		{{#each choices}}
-			<button type="button" class="btn btn-default lock-answer" data-champion="{{id}}">
-				<img src="http://ddragon.leagueoflegends.com/cdn/6.8.1/img/champion/{{key}}.png" width="80" height="80">
-			</button>
+<p>
+	<span id="timer-container">
+		<i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;&nbsp;<span id="timer-text"></span>
+	</span>
+	<span id="round-container">
+		<span id="round-text">Round {{round}} / {{numRounds}}</span>
+	</span>
+	<span class="clearfix"></span>
+</p>
+<div>
+	<p class="question-text">This player has mastered</p>
+	<div class="question-images">
+		{{#each mastered}}
+			<img src="http://ddragon.leagueoflegends.com/cdn/6.8.1/img/champion/{{key}}.png" width="80" height="80">
 		{{/each}}
 	</div>
+	<p class="question-text">What's his main?</p>
+	<div class="champ-select">
+		<div class="btn-group" role="group">
+			{{#each choices}}
+				<button type="button" class="btn btn-default lock-answer" data-champion="{{id}}">
+					<img src="http://ddragon.leagueoflegends.com/cdn/6.8.1/img/champion/{{key}}.png" width="80" height="80">
+				</button>
+			{{/each}}
+		</div>
+	</div>
 </div>
-<p id="timer-container">
-	<i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>&nbsp;&nbsp;<span id="timer-text"></span>
-</p>
