@@ -54,6 +54,27 @@ body {
 	margin-bottom: 10px;
 }
 
+.btn.lock-answer {
+	opacity: 1;
+}
+
+.loading-pick {
+	position: absolute;
+	width: 80px;
+	top: 20px;
+	z-index: 1;
+	color: white;
+	text-shadow: 0px 0px 20px black;
+}
+
+.locked-pick, .btn.locked-pick:hover {
+	background-color: #FFDA5F;
+}
+
+.correct-pick, btn.correct-pick:hover {
+	background-color: #49FA5D;
+}
+
 #timer-container {
 	text-align: center;
 }

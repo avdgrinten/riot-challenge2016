@@ -22,9 +22,7 @@ PortalScreen.prototype.display = function() {
 		var summoner_name = $("#input-summoner-name").val();
 		var platform = $("#select-platform").val();
 
-		$("#btn-submit").prepend(templates["loading"]({ 
-			size: "fa-lg"
-		}));
+		$("#btn-submit").prepend(templates["loading-button"]({ }));
 		$("#btn-submit").prop("disabled",true);
 
 		$.post({
@@ -53,9 +51,7 @@ PortalScreen.prototype.display = function() {
 	}
 
 	function playSoloClick(event) {
-		$("#button-solo").prepend(templates["loading"]({ 
-			size: "fa-lg"
-		}));
+		$("#button-solo").prepend(templates["loading-button"]({ }));
 		$("#button-solo").prop("disabled",true);
 
 
@@ -78,9 +74,7 @@ PortalScreen.prototype.display = function() {
 	}
 
 	function playPartyClick(event) {
-		$("#button-party").prepend(templates["loading"]({ 
-			size: "fa-lg"
-		}));
+		$("#button-party").prepend(templates["loading-button"]({ }));
 		$("#button-party").prop("disabled",true);
 
 		$.post({
@@ -102,13 +96,11 @@ PortalScreen.prototype.display = function() {
 	}
 
 	function switchSummoner(event) {
-		$("#button-switch-summoner").prepend(templates["loading"]({ 
-			size: "fa-lg"
-		}));
+		$("#button-switch-summoner").prepend(templates["loading-button"]({ }));
 		$("#button-switch-summoner").prop("disabled",true);
 	};
 
-	$('#content').empty().prepend(templates["loading"]({ }));
+	$('#content').empty().prepend(templates["loading-page"]({ }));
 
 	$.get({
 		url: '/backend/portal/site',
@@ -190,17 +182,20 @@ LobbyScreen.prototype.display = function() {
 	}
 
 	function answerClick(event) {
+		$(this).append(templates['loading-pick']({ }));
+		$('.lock-answer').attr('disabled', 'disabled');
 		$.post({
 			url: '/backend/lobby/' + self.lobbyId + '/lock-answer',
 			data: JSON.stringify({
 				answer: {
-					championId: $(event.currentTarget).data('champion')
+					championId: $(this).data('champion')
 				}
 			}),
 			contentType: 'application/json',
 			success: (data) => {
 				console.log(data);
-				$('.lock-answer').attr('disabled', 'disabled');
+				$(event.currentTarget).addClass('locked-pick');
+				$(".loading-pick", this).remove();
 			},
 			error: function(xhr) {
 				displayError({
@@ -228,14 +223,15 @@ LobbyScreen.prototype.display = function() {
 			}));
 		}else if(type == 'seconds-left'){
 			if(data.seconds == 0){
-				$('#timer-text').text("The time is up");
+				$('#timer-text').text("Time is up!");
 			}else if(data.seconds == 1) {
 				$('#timer-text').text("1 second left");
 			}else{
 				$('#timer-text').text(data.seconds + " seconds left");
 			}
 		}else if(type == 'correction'){
-		
+			$('.lock-answer[data-champion=' + data.answer.championId + ']').removeClass('locked-pick');
+			$('.lock-answer[data-champion=' + data.answer.championId + ']').addClass('correct-pick');
 		}else if(type == 'scores'){
 			data.forEach(function(entry) {
 				$('.summoner[data-index=' + entry.index + '] .score').text(entry.score);
@@ -249,7 +245,7 @@ LobbyScreen.prototype.display = function() {
 		}
 	}
 
-	$('#content').empty().prepend(templates["loading"]({ }));
+	$('#content').empty().prepend(templates["loading-page"]({ }));
 	$.get({
 		url: '/backend/lobby/' + self.lobbyId + '/site',
 		dataType: "json",
