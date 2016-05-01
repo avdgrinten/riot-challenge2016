@@ -4,10 +4,14 @@
 	<p class="lobby-text"><img src={{myself.profileIcon}} width="32" height ="32"> {{myself.displayName}}</p>
 	<p class="lobby-text">Share this link with your friends to play together:</p>
 	<p class="lobby-text">
-		<input type="text" class="form-control lobby-link" value="link" />
-		<button id="clipboard-button" type="button" class="btn btn-default" data-toggle="tooltip" data-placement="right" title="Copy to clipboard">
-				<span class="glyphicon glyphicon-copy" aria-hidden="true"></span>
-		</button>
+		<div class="input-group">
+			<input type="text" id="input-share-link" class="form-control lobby-link" value="{{shareUrl}}" />
+			<span class="input-group-btn">
+				<button id="clipboard-button" class="btn btn-default" type="button" data-toggle="tooltip" data-placement="right" title="Copy to clipboard">
+					<span class="glyphicon glyphicon-copy" aria-hidden="true"></span>
+				</button>
+			</span>
+		</div>
 	</p>
 	<p class="lobby-text">
 		<button type="button" class="btn btn-default lobby-button">I'm ready!</button>

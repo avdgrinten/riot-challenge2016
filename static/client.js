@@ -223,9 +223,17 @@ LobbyScreen.prototype.display = function() {
 		dataType: "json",
 		success: data => {
 			if(data.state == 'lobby-select') {
-				var source = templates['lobby-select']({
-					myself: data.user
+				var state = describeState({
+					site: "lobby",
+					lobbyId: self.lobbyId
 				});
+				console.log(state);
+
+				var source = templates['lobby-select']({
+					myself: data.user,
+					shareUrl: state.url
+				});
+
 				var dom = $($.parseHTML(source));
 				
 				$("#clipboard-button", dom)
