@@ -103,7 +103,10 @@ let main = function() {
 			.then(connectDb)
 			.then(initLogic)
 			.then(() => {
-				frontend = new Frontend({ });
+				frontend = new Frontend({
+					host: config.host,
+					port: config.serverPort
+				});
 			})
 			.then(() => {
 				backend = new Backend({

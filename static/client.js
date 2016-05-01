@@ -1,4 +1,6 @@
 
+var frontendUrl;
+
 function displayError(error) {
 	$('#notifications').prepend(templates["alert"]({ 
 		error: error
@@ -258,7 +260,7 @@ LobbyScreen.prototype.display = function() {
 				console.log(state);
 
 				var source = templates['lobby-select']({
-					shareUrl: state.url
+					shareUrl: frontendUrl + state.url
 				});
 
 				var dom = $($.parseHTML(source));
@@ -295,7 +297,8 @@ LobbyScreen.prototype.display = function() {
 		error: function(xhr) {
 			displayError({
 				url: "/backend/lobby/{lobbyId}/site",
-				httpStatus: xhr.status
+				httpStatus: xhr.status,
+				data: JSON.stringify(xhr.responseJSON, null, 4)
 			});
 		}
 	});
@@ -354,6 +357,8 @@ window.onpopstate = function(event) {
 };
 
 $(document).ready(function() {
+	frontendUrl = $('html').data('frontendUrl');
+
 	var state = {
 		site: $('html').data('site'),
 		lobbyId: $('html').data('lobbyId')
