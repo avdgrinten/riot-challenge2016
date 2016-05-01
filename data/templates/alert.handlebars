@@ -10,6 +10,7 @@
 			{{error.message}}
 			<br>
 			Details: {{error.details}}
+			<br>
 		{{/if}}
 		{{#if error.url}}
 			Something went wrong while communicating with the server.
@@ -17,6 +18,7 @@
 			URL: <code>{{error.url}}</code>
 			<br>
 			HTTP status: <code>{{error.httpStatus}}</code>
+			<br>
 		{{/if}}
 		{{#if error.data}}
 			The following additional data may help us to diagnose the problem:
