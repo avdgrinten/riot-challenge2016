@@ -8,15 +8,21 @@ body {
 }
 
 .alert {
-	margin-top: 10px;
 	margin-bottom: 10px;
 }
 
 .loader {
 	text-align: center;
 	padding: 0px;
-	margin-top: 10px;
 	margin-bottom: 10px;
+}
+
+.summoner-list-icon {
+	width: 32px;
+	height: 32px;
+	float: left;
+	margin-right: 5px;
+	margin-bottom: 5px;
 }
 
 #overlay {
@@ -26,6 +32,12 @@ body {
 #content,
 #notifications {
 	background: rgba(255, 255, 255, 0.9);
+	padding-top: 10px;
+}
+
+#content:empty,
+#notifications:empty {
+	display: none;
 }
 
 #header {

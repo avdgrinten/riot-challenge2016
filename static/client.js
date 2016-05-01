@@ -235,6 +235,7 @@ LobbyScreen.prototype.display = function() {
 			$('.lock-answer[data-champion=' + data.answer.championId + ']').removeClass('locked-pick');
 			$('.lock-answer[data-champion=' + data.answer.championId + ']').addClass('correct-pick');
 		}else if(type == 'scores'){
+			console.log(data);
 			data.forEach(function(entry) {
 				$('.summoner[data-index=' + entry.index + '] .score').text(entry.score);
 			});
