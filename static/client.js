@@ -214,7 +214,8 @@ LobbyScreen.prototype.display = function() {
 		}else{
 			displayError({
 				message: "Ouch, the server gave us a response we don't understand.",
-				details: "Illegal update information"
+				details: "Illegal update information",
+				data: type
 			});
 		}
 	}
@@ -261,7 +262,8 @@ LobbyScreen.prototype.display = function() {
 			}else{
 				displayError({
 					message: "Ouch, the server gave us a response we don't understand.",
-					details: "Illegal .state"
+					details: "Illegal state",
+					data: data.state
 				});
 			}
 		},

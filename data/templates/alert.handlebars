@@ -18,5 +18,9 @@
 			<br>
 			HTTP status: <code>{{error.httpStatus}}</code>
 		{{/if}}
+		{{#if error.data}}
+			The following additional data may help us to diagnose the problem:
+			<pre>{{error.data}}</pre>
+		{{/if}}
 	</div>
 </div>
