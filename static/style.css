@@ -30,13 +30,23 @@ body {
 }
 
 #content,
-#notifications {
+#notifications,
+#footer {
 	background: rgba(255, 255, 255, 0.9);
 	padding-top: 10px;
 }
 
+#footer {
+	border-top: 1px solid #E1E1E8;
+}
+
+.footer-text {
+	font-size: 75%;
+}
+
 #content:empty,
-#notifications:empty {
+#notifications:empty,
+#footer:empty {
 	display: none;
 }
 
