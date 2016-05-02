@@ -113,7 +113,7 @@ HomeScreen.prototype.display = function() {
 		},
 		error: function(xhr) {
 			if(xhr.status == 400 && xhr.responseJSON.error == 'user-required') {
-				displayScreen(new SelectSummonerScreen());
+				displayScreen(new SelectSummonerScreen({ }));
 			}else{
 				displayError({
 					url: "/backend/portal/site",
@@ -273,6 +273,10 @@ LobbyScreen.prototype.display = function() {
 		error: function(xhr) {
 			if(xhr.status == 403 && xhr.responseJSON.error == 'user-not-in-lobby') {
 				displayScreen(new JoinLobbyScreen(self._lobbyId));
+			}else if(xhr.status == 400 && xhr.responseJSON.error == 'user-required') {
+				displayScreen(new SelectSummonerScreen({
+					returnToLobby: self._lobbyId
+				}));
 			}else{
 				displayError({
 					url: "/backend/lobby/{lobbyId}/site",
@@ -305,13 +309,57 @@ JoinLobbyScreen.prototype.cancel = function() {
 };
 
 
-function SelectSummonerScreen() {
-
+function SelectSummonerScreen(follow) {
+	this._follow = follow;
 }
 SelectSummonerScreen.prototype.display = function() {
+	var self = this;
+	function summonerSubmit(event) {
+		var summoner_name = $("#input-summoner-name").val();
+		var platform = $("#select-platform").val();
+
+		$("#btn-submit").prepend(templates["loading-button"]({ }));
+		$("#btn-submit").prop("disabled", true);
+
+		$.post({
+			url: '/backend/portal/select-summoner',
+			data: JSON.stringify({
+				summonerName: summoner_name,
+				platform: platform
+			}),
+			success: (data) => {
+				localStorage.setItem("summonerName", summoner_name);
+				localStorage.setItem("platform", platform);
+				if(self._follow.returnToLobby) {
+					displayScreen(new LobbyScreen(self._follow.returnToLobby));
+				}else{
+					displayScreen(new HomeScreen());
+				}
+			},
+			error: function(xhr) {
+				if(xhr.status == 403 && xhr.responseJSON.error == 'summoner-not-found') {
+					displayError({
+						url: "api/select-summoner",
+						httpStatus: xhr.status
+					});
+					$(".center", "#btn-submit").remove();
+					$("#btn-submit").prop("disabled", false);
+				}else{
+					displayError({
+						url: "api/select-summoner",
+						httpStatus: xhr.status
+					});
+				}
+			},
+			contentType: 'application/json'
+		});
+		
+		event.preventDefault();
+	};
+
 	$('#content').empty();
 	$('#content').append(templates["summoner-select"]({ }));
-	$("#submit").submit(this.summonerSubmit);
+	$("#submit").submit(summonerSubmit);
 	if(localStorage.getItem("summonerName") && localStorage.getItem("platform")) {
 		$('#input-summoner-name').val(localStorage.getItem("summonerName"));
 		$('#select-platform').val(localStorage.getItem("platform"));
@@ -320,48 +368,6 @@ SelectSummonerScreen.prototype.display = function() {
 SelectSummonerScreen.prototype.cancel = function() {
 
 };
-SelectSummonerScreen.prototype.summonerSubmit = function(event) {
-	var summoner_name = $("#input-summoner-name").val();
-	var platform = $("#select-platform").val();
-
-	$("#btn-submit").prepend(templates["loading-button"]({ }));
-	$("#btn-submit").prop("disabled", true);
-
-	$.post({
-		url: '/backend/portal/select-summoner',
-		data: JSON.stringify({
-			summonerName: summoner_name,
-			platform: platform
-		}),
-		success: (data) => {
-			refreshTo({
-				site: "portal"
-			});
-			localStorage.setItem("summonerName", summoner_name);
-			localStorage.setItem("platform", platform);
-		},
-		error: function(xhr) {
-			if(xhr.status == 403 && xhr.responseJSON.error == 'summoner-not-found') {
-				displayError({
-					url: "api/select-summoner",
-					httpStatus: xhr.status
-				});
-				$(".center", "#btn-submit").remove();
-				$("#btn-submit").prop("disabled", false);
-			}else{
-				displayError({
-					url: "api/select-summoner",
-					httpStatus: xhr.status
-				});
-			}
-		},
-		contentType: 'application/json'
-	});
-	
-	event.preventDefault();
-};
-
-
 
 
 function PlaySoloScreen() {
