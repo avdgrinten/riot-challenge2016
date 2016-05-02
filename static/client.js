@@ -341,10 +341,19 @@ SelectSummonerScreen.prototype.summonerSubmit = function(event) {
 			localStorage.setItem("platform", platform);
 		},
 		error: function(xhr) {
-			displayError({
-				url: "api/select-summoner",
-				httpStatus: xhr.status
-			});
+			if(xhr.status == 403 && xhr.responseJSON.error == 'summoner-not-found') {
+				displayError({
+					url: "api/select-summoner",
+					httpStatus: xhr.status
+				});
+				$(".center", "#btn-submit").remove();
+				$("#btn-submit").prop("disabled", false);
+			}else{
+				displayError({
+					url: "api/select-summoner",
+					httpStatus: xhr.status
+				});
+			}
 		},
 		contentType: 'application/json'
 	});
