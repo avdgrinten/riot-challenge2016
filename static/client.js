@@ -359,7 +359,7 @@ SelectSummonerScreen.prototype.summonerSubmit = function(event) {
 	});
 	
 	event.preventDefault();
-}
+};
 
 
 
