@@ -16,46 +16,14 @@ function displayScreen(screen) {
 	screen.display();
 }
 
-function PortalScreen() {
+
+function HomeScreen() {
 
 }
-PortalScreen.prototype.display = function() {
-	function summonerSubmit(event) {
-		var summoner_name = $("#input-summoner-name").val();
-		var platform = $("#select-platform").val();
-
-		$("#btn-submit").prepend(templates["loading-button"]({ }));
-		$("#btn-submit").prop("disabled",true);
-
-		$.post({
-			url: '/backend/portal/select-summoner',
-			data: JSON.stringify({
-				summonerName: summoner_name,
-				platform: platform
-			}),
-			success: (data) => {
-				refreshTo({
-					site: "portal"
-				});
-				localStorage.setItem("summonerName", summoner_name);
-				localStorage.setItem("platform", platform);
-			},
-			error: function(xhr) {
-				displayError({
-					url: "api/select-summoner",
-					httpStatus: xhr.status
-				});
-			},
-			contentType: 'application/json'
-		});
-		
-		event.preventDefault();
-	}
-
+HomeScreen.prototype.display = function() {
 	function playSoloClick(event) {
 		$("#button-solo").prepend(templates["loading-button"]({ }));
-		$("#button-solo").prop("disabled",true);
-
+		$("#button-solo").prop("disabled", true);
 
 		$.post({
 			url: '/backend/portal/play-solo',
@@ -77,7 +45,7 @@ PortalScreen.prototype.display = function() {
 
 	function playPartyClick(event) {
 		$("#button-party").prepend(templates["loading-button"]({ }));
-		$("#button-party").prop("disabled",true);
+		$("#button-party").prop("disabled", true);
 
 		$.post({
 			url: '/backend/portal/play-party',
@@ -99,7 +67,20 @@ PortalScreen.prototype.display = function() {
 
 	function switchSummoner(event) {
 		$("#button-switch-summoner").prepend(templates["loading-button"]({ }));
-		$("#button-switch-summoner").prop("disabled",true);
+		$("#button-switch-summoner").prop("disabled", true);
+
+		/*
+		$.post({
+			url: 'backend/portal/exit-session',
+			dataType: 'json',
+			success: (data) => {
+
+			},
+			error: function(xhr) {
+
+			};
+		})
+		*/
 	};
 
 	$('#content').empty().prepend(templates["loading-page"]({ }));
@@ -132,13 +113,7 @@ PortalScreen.prototype.display = function() {
 		},
 		error: function(xhr) {
 			if(xhr.status == 400 && xhr.responseJSON.error == 'user-required') {
-				$('#content').empty();
-				$('#content').append(templates["summoner-select"]({ }));
-				$("#submit").submit(summonerSubmit);
-				if(localStorage.getItem("summonerName") && localStorage.getItem("platform")) {
-					$('#input-summoner-name').val(localStorage.getItem("summonerName"));
-					$('#select-platform').val(localStorage.getItem("platform"));
-				}
+				displayScreen(new SelectSummonerScreen());
 			}else{
 				displayError({
 					url: "/backend/portal/site",
@@ -148,9 +123,10 @@ PortalScreen.prototype.display = function() {
 		}
 	});
 };
-PortalScreen.prototype.cancel = function() {
+HomeScreen.prototype.cancel = function() {
 
 };
+
 
 function LobbyScreen(lobby_id) {
 	this._lobbyId = lobby_id;
@@ -328,10 +304,82 @@ JoinLobbyScreen.prototype.cancel = function() {
 
 };
 
+
+function SelectSummonerScreen() {
+
+}
+SelectSummonerScreen.prototype.display = function() {
+	$('#content').empty();
+	$('#content').append(templates["summoner-select"]({ }));
+	$("#submit").submit(this.summonerSubmit);
+	if(localStorage.getItem("summonerName") && localStorage.getItem("platform")) {
+		$('#input-summoner-name').val(localStorage.getItem("summonerName"));
+		$('#select-platform').val(localStorage.getItem("platform"));
+	}
+};
+SelectSummonerScreen.prototype.cancel = function() {
+
+};
+SelectSummonerScreen.prototype.summonerSubmit = function(event) {
+	var summoner_name = $("#input-summoner-name").val();
+	var platform = $("#select-platform").val();
+
+	$("#btn-submit").prepend(templates["loading-button"]({ }));
+	$("#btn-submit").prop("disabled", true);
+
+	$.post({
+		url: '/backend/portal/select-summoner',
+		data: JSON.stringify({
+			summonerName: summoner_name,
+			platform: platform
+		}),
+		success: (data) => {
+			refreshTo({
+				site: "portal"
+			});
+			localStorage.setItem("summonerName", summoner_name);
+			localStorage.setItem("platform", platform);
+		},
+		error: function(xhr) {
+			displayError({
+				url: "api/select-summoner",
+				httpStatus: xhr.status
+			});
+		},
+		contentType: 'application/json'
+	});
+	
+	event.preventDefault();
+}
+
+
+
+
+function PlaySoloScreen() {
+
+}
+PlaySoloScreen.prototype.display = function() {
+
+};
+PlaySoloScreen.prototype.cancel = function() {
+
+};
+
+
+function PlayPartyScreen() {
+
+}
+PlayPartyScreen.prototype.display = function() {
+
+};
+PlayPartyScreen.prototype.cancel = function() {
+
+};
+
 function switchSite(state) {
 	switch(state.site) {
 	case 'portal':
-		displayScreen(new PortalScreen());
+		displayScreen(new HomeScreen());
 		break;
 	case 'lobby':
 		displayScreen(new LobbyScreen(state.lobbyId));
