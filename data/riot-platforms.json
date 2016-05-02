@@ -1,7 +1,47 @@
 
 {
+	"BR1": {
+		"region": "br",
+		"host": "br.api.pvp.net"
+	},
+	"EUN1": {
+		"region": "eune",
+		"host": "eune.api.pvp.net"
+	},
 	"EUW1": {
 		"region": "euw",
 		"host": "euw.api.pvp.net"
+	},
+	"JP1": {
+		"region": "jp",
+		"host": "jp.api.pvp.net"
+	},
+	"KR": {
+		"region": "kr",
+		"host": "kr.api.pvp.net"
+	},
+	"LA1": {
+		"region": "lan",
+		"host": "lan.api.pvp.net"
+	},
+	"LA2": {
+		"region": "las",
+		"host": "las.api.pvp.net"
+	},
+	"NA1": {
+		"region": "na",
+		"host": "na.api.pvp.net"
+	},
+	"OC1": {
+		"region": "oce",
+		"host": "oce.api.pvp.net"
+	},
+	"TR1": {
+		"region": "tr",
+		"host": "tr.api.pvp.net"
+	},
+	"RU": {
+		"region": "ru",
+		"host": "ru.api.pvp.net"
 	}
 }
