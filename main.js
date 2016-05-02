@@ -12,11 +12,13 @@ const express = require('express');
 const setup = require('./lib/setup.js');
 const crawl = require('./lib/crawl.js');
 const gameLogic = require('./lib/game-logic.js');
+const riotApi = require('./lib/riot-api.js');
 const Frontend = require('./lib/frontend.js');
 const Backend = require('./lib/backend.js');
 
 let config;
 let db;
+let realtimeCrawler;
 let logic;
 let frontend;
 let backend;
@@ -39,11 +41,24 @@ let connectDb = function() {
 	});
 };
 
+let initRealtimeCrawler = function() {
+	return new Promise((resolve, reject) => {
+		realtimeCrawler = new crawl.RealtimeCrawler({
+			db: db,
+			apiKey: config.apiKey,
+			queue: new riotApi.ThrottleQueue(8, 10)
+		});
+		resolve();
+	})
+	.then(() => realtimeCrawler.initialize());
+};
+
 let initLogic = function() {
 	return new Promise((resolve, reject) => {
 		logic = new gameLogic.Logic({
 			db: db,
-			apiKey: config.apiKey
+			apiKey: config.apiKey,
+			crawler: realtimeCrawler
 		});
 		resolve();
 	})
@@ -101,6 +116,7 @@ let main = function() {
 
 			return readConfig()
 			.then(connectDb)
+			.then(initRealtimeCrawler)
 			.then(initLogic)
 			.then(() => {
 				frontend = new Frontend({
