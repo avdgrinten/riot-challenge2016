@@ -10,33 +10,33 @@ body {
 	background-repeat: no-repeat;
 	background-size: cover;
 	padding: 10px 0;
+	height: calc(100% - 10px);
 }
-body::after {
-	/* diese Pseudo-Elemente realisieren die Ränder oben und unten */
+
+body:after {
+	/* dieses Pseudo-Element realisiert den Rand unten */
 	display: block;
 	height: 10px;
 	content: " ";
 }
 
 #overlay {
-	position: relative;
-
-	/* wir ziehen jeweils 10px für die Ränder oben und unten ab */
 	min-height: 100%;
-	/* padding-bottom stellt sicher, dass sich der Inhalt nicht mit dem Footer überschneidet */
+
+	/* padding reserviert Platz für den Footer */
+	/* margin schiebt den Footer in dieses Element rein */
 	padding-bottom: 60px;
+	margin-bottom: -60px;
 
 	background: rgba(255, 255, 255, 0.9);
 }
 
 footer {
-	position: absolute;
-	bottom: 0;
+	/* Sicherstellen, dass unter dem Footer das #overall Tag nicht mehr sichtbar ist */
+	min-height: 60px;
 
-	/* line-height stellt sicher, dass der Text vertikal zentriert ist */
-	width: 100%;
-	height: 60px;
-	line-height: 60px;
+	/* line-height für schöneres Aussehen */
+	line-height: 30px;
 
 	background-color: rgba(247, 247, 247, 1);
 }
