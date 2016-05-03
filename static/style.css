@@ -4,17 +4,17 @@ html, body {
 }
 
 body {
+	padding: 10px 0;
+	height: 100%;
+
 	font-family: helvetica;
 	background-image: url("background.png");
 	background-attachment: fixed;
 	background-repeat: no-repeat;
 	background-size: cover;
-	padding: 10px 0;
-	height: calc(100% - 10px);
 }
 
 body:after {
-	/* dieses Pseudo-Element realisiert den Rand unten */
 	display: block;
 	height: 10px;
 	content: " ";
@@ -23,21 +23,20 @@ body:after {
 #overlay {
 	min-height: 100%;
 
-	/* padding reserviert Platz für den Footer */
-	/* margin schiebt den Footer in dieses Element rein */
-	padding-bottom: 60px;
-	margin-bottom: -60px;
+	padding-bottom: 41px;
+	margin-bottom: -41px;
 
 	background: rgba(255, 255, 255, 0.9);
 }
 
 footer {
-	/* Sicherstellen, dass unter dem Footer das #overall Tag nicht mehr sichtbar ist */
-	min-height: 60px;
+	min-height: 40px;
 
-	/* line-height für schöneres Aussehen */
-	line-height: 30px;
+	line-height: 20px;
+	font-size: 0.9em;
+	color: #666;
 
+	border-top: 1px solid #E1E1E8;
 	background-color: rgba(247, 247, 247, 1);
 }
 
@@ -62,10 +61,6 @@ footer {
 #content,
 #notifications {
 	padding-top: 10px;
-}
-
-.footer-text {
-	font-size: 75%;
 }
 
 #content:empty,
