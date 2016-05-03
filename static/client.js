@@ -28,7 +28,7 @@ HomeScreen.prototype.display = function() {
 		$.post({
 			url: '/backend/portal/play-solo',
 			dataType: 'json',
-			success: (data) => {
+			success: function(data) {
 				navigateTo({
 					site: "lobby",
 					lobbyId: data.lobbyId
@@ -50,7 +50,7 @@ HomeScreen.prototype.display = function() {
 		$.post({
 			url: '/backend/portal/play-party',
 			dataType: 'json',
-			success: (data) => {
+			success: function(data) {
 				navigateTo({
 					site: "lobby",
 					lobbyId: data.lobbyId
@@ -73,7 +73,7 @@ HomeScreen.prototype.display = function() {
 		$.post({
 			url: 'backend/portal/exit-session',
 			dataType: 'json',
-			success: (data) => {
+			success: function(data) {
 
 			},
 			error: function(xhr) {
@@ -88,7 +88,7 @@ HomeScreen.prototype.display = function() {
 	$.get({
 		url: '/backend/portal/site',
 		dataType: 'json',
-		success: (data) => {
+		success: function(data) {
 			if(data.state == "summoner-home"){
 				$('#content').empty();
 				$('#content').append(templates["summoner-home"]({ 
@@ -139,7 +139,7 @@ LobbyScreen.prototype.display = function() {
 		$.post({
 			url: '/backend/lobby/' + self._lobbyId + '/updates?sequenceId=' + sequence_id,
 			dataType: "json",
-			success: (data) => {
+			success: function(data) {
 				data.forEach(function(update) {
 					if(update.sequenceId != sequence_id)
 						throw new Error("Out-of-order update");
@@ -170,9 +170,9 @@ LobbyScreen.prototype.display = function() {
 				}
 			}),
 			contentType: 'application/json',
-			success: (data) => {
+			success: function(data) {
 				$(event.currentTarget).addClass('locked-pick');
-				$(".loading-pick", this).remove();
+				$(".loading-pick", event.currentTarget).remove();
 			},
 			error: function(xhr) {
 				displayError({
@@ -228,7 +228,7 @@ LobbyScreen.prototype.display = function() {
 	$.get({
 		url: '/backend/lobby/' + self._lobbyId + '/site',
 		dataType: "json",
-		success: data => {
+		success: function(data) {
 			if(data.state == 'lobby-select') {
 				var state = describeState({
 					site: "lobby",
@@ -299,7 +299,7 @@ JoinLobbyScreen.prototype.display = function() {
 	$.post({
 		url: '/backend/lobby/' + self._lobbyId + '/join',
 		dataType: "json",
-		success: data => {
+		success: function(data) {
 			console.log(data);
 		}
 	});
@@ -327,7 +327,7 @@ SelectSummonerScreen.prototype.display = function() {
 				summonerName: summoner_name,
 				platform: platform
 			}),
-			success: (data) => {
+			success: function(data) {
 				localStorage.setItem("summonerName", summoner_name);
 				localStorage.setItem("platform", platform);
 				if(self._follow.returnToLobby) {
