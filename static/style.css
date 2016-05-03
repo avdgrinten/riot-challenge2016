@@ -23,14 +23,14 @@ body:after {
 #overlay {
 	min-height: 100%;
 
-	padding-bottom: 41px;
-	margin-bottom: -41px;
+	padding-bottom: 101px;
+	margin-bottom: -101px;
 
 	background: rgba(255, 255, 255, 0.9);
 }
 
 footer {
-	min-height: 40px;
+	min-height: 100px;
 
 	line-height: 20px;
 	font-size: 0.9em;
@@ -38,6 +38,39 @@ footer {
 
 	border-top: 1px solid #E1E1E8;
 	background-color: rgba(247, 247, 247, 1);
+}
+
+@media (min-width: 768px) {
+	footer {
+		min-height: 60px;
+	}
+
+	#overlay {
+		padding: 61px;
+		margin-bottom: -61px;
+	}
+}
+
+@media (min-width: 992px) {
+	footer {
+		min-height: 40px;
+	}
+
+	#overlay {
+		padding: 41px;
+		margin-bottom: -41px;
+	}
+}
+
+@media (min-width: 1200px) {
+	footer {
+		min-height: 40px;
+	}
+
+	#overlay {
+		padding: 41px;
+		margin-bottom: -41px;
+	}
 }
 
 .alert {
