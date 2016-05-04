@@ -19,6 +19,7 @@ const Backend = require('./lib/backend.js');
 let config;
 let db;
 let realtimeCrawler;
+let backgroundCrawler;
 let logic;
 let frontend;
 let backend;
@@ -51,6 +52,19 @@ let initRealtimeCrawler = function() {
 		resolve();
 	})
 	.then(() => realtimeCrawler.initialize());
+};
+
+let initBackgroundCrawler = function() {
+	return new Promise((resolve, reject) => {
+		backgroundCrawler = new crawl.BackgroundCrawler({
+			db: db,
+			apiKey: config.apiKey,
+			queue: new riotApi.ThrottleQueue(2, 10)
+		});
+		resolve();
+	})
+	.then(() => backgroundCrawler.initialize())
+	.then(() => backgroundCrawler.run());
 };
 
 let initLogic = function() {
@@ -117,6 +131,7 @@ let main = function() {
 			return readConfig()
 			.then(connectDb)
 			.then(initRealtimeCrawler)
+			.then(initBackgroundCrawler)
 			.then(initLogic)
 			.then(() => {
 				frontend = new Frontend({
@@ -148,5 +163,6 @@ main()
 .catch(error => {
 	console.error("Error during initialization");
 	console.error(error);
+	console.error(error.stack);
 });
 
