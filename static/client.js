@@ -130,6 +130,8 @@ HomeScreen.prototype.cancel = function() {
 
 function LobbyScreen(lobby_id) {
 	this._lobbyId = lobby_id;
+	this._index = null;
+	this._userList = [];
 }
 LobbyScreen.prototype.display = function() {
 	var self = this;
@@ -199,6 +201,12 @@ LobbyScreen.prototype.display = function() {
 				index: data.index,
 				summoner: data.user
 			}));
+
+			var user = {
+				index: data.index,
+				summoner: data.user
+			};
+			self._userList.push(user);
 		}else if(type == 'seconds-left'){
 			if(data.seconds == 0){
 				$('#timer-text').text("Time is up!");
@@ -215,6 +223,8 @@ LobbyScreen.prototype.display = function() {
 			data.forEach(function(entry) {
 				$('.summoner[data-index=' + entry.index + '] .score').text(entry.score);
 			});
+		}else if(type == 'game-complete') {
+			displayScreen(new VictoryScreen(self._userList, data.winners, self._index));
 		}else{
 			displayError({
 				message: "Ouch, the server gave us a response we don't understand.",
@@ -254,6 +264,8 @@ LobbyScreen.prototype.display = function() {
 
 				$('#content').empty().append(dom);
 			}else if(data.state == 'active-game') {
+				console.log(data);
+				self._index = data.ownIndex;
 				var source = templates['active-game']({
 					myself: data.user
 				});
@@ -305,6 +317,43 @@ JoinLobbyScreen.prototype.display = function() {
 	});
 };
 JoinLobbyScreen.prototype.cancel = function() {
+
+};
+
+
+function VictoryScreen(users, winners, ownIndex) {
+	this._users = users;
+	this._winners = winners;
+	this._ownIndex = ownIndex;
+}
+VictoryScreen.prototype.display = function() {
+	function returnToHome(event) {
+		displayScreen(new HomeScreen());
+	};
+
+	var self = this;
+	console.log("winners: ");
+	console.log(this._winners);
+	console.log("users: ");
+	console.log(this._users);
+	$('#content').empty();
+	$('#content').append(templates["victory"]({ }));
+	self._winners.forEach(function(winner) {
+		self._users.forEach(function(user) {
+			if(user.index == winner) {
+				$('#winner-list').append($('<li></li>').append($('<b></b>').text(user.summoner.displayName)));
+			}
+			if(self._ownIndex == winner) {
+				var audio = new Audio("http://vignette3.wikia.nocookie.net" +
+						"/leagueoflegends/images/4/46/Female1_OnVictory_1.ogg/" +
+						"revision/latest?cb=20130506193735");
+				audio.play();
+			}
+		});
+	});
+	$('#victory-button').click(returnToHome);
+};
+VictoryScreen.prototype.cancel = function() {
 
 };
 

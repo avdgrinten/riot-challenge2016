@@ -46,8 +46,10 @@ footer {
 	}
 
 	#overlay {
+		min-height: 100%;
 		padding-bottom: 61px;
 		margin-bottom: -61px;
+		background: rgba(255, 255, 255, 0.9);
 	}
 }
 
@@ -57,8 +59,10 @@ footer {
 	}
 
 	#overlay {
+		min-height: 100%;
 		padding-bottom: 41px;
 		margin-bottom: -41px;
+		background: rgba(255, 255, 255, 0.9);
 	}
 }
 
@@ -68,8 +72,10 @@ footer {
 	}
 
 	#overlay {
+		min-height: 100%;
 		padding-bottom: 41px;
 		margin-bottom: -41px;
+		background: rgba(255, 255, 255, 0.9);
 	}
 }
 
@@ -117,7 +123,9 @@ footer {
 	float: left;
 }
 
-#summoner-list {
+#summoner-list,
+#winner-list {
+	list-style-type: none;
 	padding: 0px;
 }
 
@@ -205,8 +213,4 @@ footer {
 
 .question-list-item {
 	padding: 10px;
-}
-
-#summoner-list {
-	list-style-type: none;
 }
