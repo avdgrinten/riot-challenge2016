@@ -46,7 +46,7 @@ footer {
 	}
 
 	#overlay {
-		padding: 61px;
+		padding-bottom: 61px;
 		margin-bottom: -61px;
 	}
 }
@@ -57,7 +57,7 @@ footer {
 	}
 
 	#overlay {
-		padding: 41px;
+		padding-bottom: 41px;
 		margin-bottom: -41px;
 	}
 }
@@ -68,7 +68,7 @@ footer {
 	}
 
 	#overlay {
-		padding: 41px;
+		padding-bottom: 41px;
 		margin-bottom: -41px;
 	}
 }
