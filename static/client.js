@@ -1,6 +1,11 @@
 
 var frontendUrl;
 
+function assertEquals(a, b) {
+	if(a != b)
+		throw new Error("Assertion failed!");
+}
+
 function displayError(error) {
 	var dom = $.parseHTML(templates["alert"]({ 
 		error: error
@@ -21,15 +26,20 @@ function displayState(state) {
 
 
 function HomeState() {
-
+	this._siteRequest = null;
+	this._playRequest = null;
 }
 HomeState.prototype.display = function() {
+	var self = this;
+
 	function playSoloClick(event) {
 		var dom = $.parseHTML(templates["loading-button"]());
 		$("#button-solo").prepend(dom);
 		$("#button-solo").prop("disabled", true);
+		$("#button-party").prop("disabled", true);
 
-		$.post({
+		assertEquals(self._playRequest, null);
+		self._playRequest = $.post({
 			url: '/backend/portal/play-solo',
 			dataType: 'json',
 			success: function(data) {
@@ -38,11 +48,18 @@ HomeState.prototype.display = function() {
 					lobbyId: data.lobbyId
 				});
 			},
-			error: function(xhr) {
+			error: function(xhr, reason) {
+				if(reason == 'abort')
+					return;
+
 				displayError({
 					url: "api/play-solo",
 					httpStatus: xhr.status
 				});
+			},
+			complete: function(xhr) {
+				assertEquals(self._playRequest, xhr);
+				self._playRequest = null;
 			}
 		});
 	}
@@ -51,8 +68,10 @@ HomeState.prototype.display = function() {
 		var dom = $.parseHTML(templates["loading-button"]());
 		$("#button-party").prepend(dom);
 		$("#button-party").prop("disabled", true);
+		$("#button-solo").prop("disabled", true);
 
-		$.post({
+		assertEquals(self._playRequest, null);
+		self._playRequest = $.post({
 			url: '/backend/portal/play-party',
 			dataType: 'json',
 			success: function(data) {
@@ -61,11 +80,18 @@ HomeState.prototype.display = function() {
 					lobbyId: data.lobbyId
 				});
 			},
-			error: function(xhr) {
+			error: function(xhr, reason) {
+				if(reason == 'abort')
+					return;
+				
 				displayError({
 					url: "api/play-party",
 					httpStatus: xhr.status
 				});
+			},
+			complete: function(xhr) {
+				assertEquals(self._playRequest, xhr);
+				self._playRequest = null;
 			}
 		});
 	}
@@ -92,7 +118,8 @@ HomeState.prototype.display = function() {
 	var dom = $.parseHTML(templates["loading-page"]());
 	$('#content').empty().prepend(dom);
 
-	$.get({
+	assertEquals(self._siteRequest, null);
+	self._siteRequest = $.get({
 		url: '/backend/portal/site',
 		dataType: 'json',
 		success: function(data) {
@@ -124,7 +151,10 @@ HomeState.prototype.display = function() {
 				});
 			}
 		},
-		error: function(xhr) {
+		error: function(xhr, reason) {
+			if(reason == 'abort')
+				return;
+			
 			if(xhr.status == 400 && xhr.responseJSON.error == 'user-required') {
 				displayState(new SelectSummonerState({ }));
 			}else{
@@ -133,11 +163,18 @@ HomeState.prototype.display = function() {
 					httpStatus: xhr.status
 				});
 			}
+		},
+		complete: function(xhr) {
+			assertEquals(self._siteRequest, xhr);
+			self._siteRequest = null;
 		}
 	});
 };
 HomeState.prototype.cancel = function() {
-
+	if(this._siteRequest)
+		this._siteRequest.abort();
+	if(this._playRequest)
+		this._playRequest.abort();
 };
 
 
@@ -145,13 +182,19 @@ function LobbyState(lobby_id) {
 	this._lobbyId = lobby_id;
 	this._index = null;
 	this._userList = [];
+
+	this._updateRequest = null;
+	this._siteRequest = null;
+	this._readyRequest = null;
+	this._answerRequest = null;
 }
 LobbyState.prototype.display = function() {
 	var self = this;
 	var sequence_id = 0;
 
 	function pollUpdates() {
-		$.post({
+		assertEquals(self._updateRequest, null);
+		self._updateRequest = $.post({
 			url: '/backend/lobby/' + self._lobbyId + '/updates?sequenceId=' + sequence_id,
 			dataType: "json",
 			success: function(data) {
@@ -162,14 +205,25 @@ LobbyState.prototype.display = function() {
 
 					sequence_id++;
 				});
-
-				pollUpdates();
 			},
-			error: function(xhr) {
+			error: function(xhr, reason) {
+				if(reason == 'abort')
+					return;
+				
 				displayError({
 					url: "api/poll/:lobby",
 					httpStatus: xhr.status
 				});
+			},
+			complete: function(xhr, reason) {
+				assertEquals(self._updateRequest, xhr);
+				self._updateRequest = null;
+
+				if(reason == 'success') {
+					pollUpdates();
+				}else{
+					console.log("pollUpdates: " + reason);
+				}
 			}
 		});
 	}
@@ -273,15 +327,23 @@ LobbyState.prototype.display = function() {
 	}
 
 	function readyClick(event) {
-		$.post({
+		assertEquals(self._readyRequest, null);
+		self._readyRequest = $.post({
 			url: '/backend/lobby/' + self._lobbyId + '/ready',
 			success: function(data) {
 			},
-			error: function(xhr) {
+			error: function(xhr, reason) {
+				if(reason == 'abort')
+					return;
+
 				displayError({
 					url: "/backend/lobby/{lobbyId}/ready",
 					httpStatus: xhr.status
 				});
+			},
+			complete: function(xhr) {
+				assertEquals(self._readyRequest, xhr);
+				self._readyRequest = null;
 			}
 		});
 	}
@@ -290,7 +352,9 @@ LobbyState.prototype.display = function() {
 		var dom = $.parseHTML(templates['loading-pick']());
 		$(this).append(dom);
 		$('.lock-answer').attr('disabled', true);
-		$.post({
+
+		assertEquals(self._answerRequest, null);
+		self._answerRequest = $.post({
 			url: '/backend/lobby/' + self._lobbyId + '/lock-answer',
 			data: JSON.stringify({
 				answer: {
@@ -302,18 +366,27 @@ LobbyState.prototype.display = function() {
 				$(event.currentTarget).addClass('locked-pick');
 				$(".loading-pick", event.currentTarget).remove();
 			},
-			error: function(xhr) {
+			error: function(xhr, reason) {
+				if(reason == 'abort')
+					return;
+				
 				displayError({
 					url: "/backend/lobby/{lobbyId}/lock-answer",
 					httpStatus: xhr.status
 				});
+			},
+			complete: function(xhr) {
+				assertEquals(self._answerRequest, xhr);
+				self._answerRequest = null;
 			}
 		});
 	}
 
 	var dom = $.parseHTML(templates["loading-page"]());
 	$('#content').empty().prepend(dom);
-	$.get({
+
+	assertEquals(this._siteRequest, null);
+	this._siteRequest = $.get({
 		url: '/backend/lobby/' + self._lobbyId + '/site',
 		dataType: "json",
 		success: function(data) {
@@ -324,7 +397,10 @@ LobbyState.prototype.display = function() {
 
 			pollUpdates();
 		},
-		error: function(xhr) {
+		error: function(xhr, reason) {
+			if(reason == 'abort')
+				return;
+			
 			if(xhr.status == 403 && xhr.responseJSON.error == 'user-not-in-lobby') {
 				displayState(new JoinLobbyState(self._lobbyId));
 			}else if(xhr.status == 400 && xhr.responseJSON.error == 'user-required') {
@@ -338,41 +414,64 @@ LobbyState.prototype.display = function() {
 					data: JSON.stringify(xhr.responseJSON, null, 4)
 				});
 			}
+		},
+		complete: function(xhr) {
+			assertEquals(self._siteRequest, xhr);
+			self._siteRequest = null;
 		}
 	});
 };
 LobbyState.prototype.cancel = function() {
-
+	if(this._siteRequest)
+		this._siteRequest.abort();
+	if(this._updateRequest)
+		this._updateRequest.abort();
+	if(this._readyRequest)
+		this._readyRequest.abort();
+	if(this._answerRequest)
+		this._answerRequest.abort();
 };
 
 function JoinLobbyState(lobby_id) {
 	this._lobbyId = lobby_id;
+
+	this._joinRequest = null;
 }
 JoinLobbyState.prototype.display = function() {
 	var self = this;
 
-	$.post({
+	assertEquals(this._joinRequest, null);
+	this._joinRequest = $.post({
 		url: '/backend/lobby/' + self._lobbyId + '/join',
 		dataType: "json",
 		success: function(data) {
 			displayState(new LobbyState(self._lobbyId));
 		},
-		error: function(xhr) {
+		error: function(xhr, reason) {
+			if(reason == 'abort')
+				return;
+			
 			displayError({
 				url: "/backend/lobby/{lobbyId}/site",
 				httpStatus: xhr.status,
 				data: JSON.stringify(xhr.responseJSON, null, 4)
 			});
+		},
+		complete: function(xhr) {
+			assertEquals(self._joinRequest, xhr);
+			self._joinRequest = null;
 		}
 	});
 };
 JoinLobbyState.prototype.cancel = function() {
-
+	if(this._joinRequest)
+		this._joinRequest.abort();
 };
 
 
 function SelectSummonerState(follow) {
 	this._follow = follow;
+	this._submitRequest = null;
 }
 SelectSummonerState.prototype.display = function() {
 	var self = this;
@@ -384,7 +483,8 @@ SelectSummonerState.prototype.display = function() {
 		$("#btn-submit").prepend(dom);
 		$("#btn-submit").prop("disabled", true);
 
-		$.post({
+		assertEquals(self._submitRequest, null);
+		self._submitRequest = $.post({
 			url: '/backend/portal/select-summoner',
 			data: JSON.stringify({
 				summonerName: summoner_name,
@@ -399,7 +499,10 @@ SelectSummonerState.prototype.display = function() {
 					displayState(new HomeState());
 				}
 			},
-			error: function(xhr) {
+			error: function(xhr, reason) {
+				if(reason == 'abort')
+					return;
+				
 				if(xhr.status == 403 && xhr.responseJSON.error == 'summoner-not-found') {
 					displayError({
 						url: "api/select-summoner",
@@ -413,6 +516,10 @@ SelectSummonerState.prototype.display = function() {
 						httpStatus: xhr.status
 					});
 				}
+			},
+			complete: function(xhr) {
+				assertEquals(self._submitRequest, xhr);
+				self._submitRequest = null;
 			},
 			contentType: 'application/json'
 		});
@@ -430,6 +537,18 @@ SelectSummonerState.prototype.display = function() {
 	$('#content').append(dom);
 };
 SelectSummonerState.prototype.cancel = function() {
+	if(this._submitRequest)
+		this._submitRequest.abort();
+};
+
+
+function SwitchSummonerState() {
+
+}
+SwitchSummonerState.prototype.display = function() {
+
+};
+SwitchSummonerState.prototype.cancel = function() {
 
 };
 
