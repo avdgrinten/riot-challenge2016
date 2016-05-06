@@ -216,8 +216,10 @@ LobbyState.prototype.display = function() {
 
 	function showVictoryScreen(users, winners, ownIndex) {
 		function returnToHome(event) {
-			displayState(new HomeState());
-		};
+			navigateTo({
+				site: "portal"
+			});
+		}
 
 		$('#lobby-content').empty();
 		var dom = $.parseHTML(templates["victory"]());
@@ -278,6 +280,7 @@ LobbyState.prototype.display = function() {
 			};
 			self._userList.push(user);
 		}else if(type == 'round') {
+			console.log(data);
 			var dom = $.parseHTML(templates['question']({
 				round: data.round,
 				numRounds: data.numRounds,

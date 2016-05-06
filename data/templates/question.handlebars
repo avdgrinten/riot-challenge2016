@@ -12,7 +12,10 @@
 	<p class="question-text">This player has mastered</p>
 	<div class="question-images">
 		{{#each mastered}}
-			<img src="http://ddragon.leagueoflegends.com/cdn/6.8.1/img/champion/{{key}}.png" width="80" height="80">
+			<div style="display: inline-block">
+				<img src="http://ddragon.leagueoflegends.com/cdn/6.8.1/img/champion/{{key}}.png" width="80" height="80">
+				<span style="display: block">{{name}}</span>
+			</div>
 		{{/each}}
 	</div>
 	<p class="question-text">What's his main?</p>
@@ -20,7 +23,10 @@
 		<div class="btn-group" role="group">
 			{{#each choices}}
 				<button type="button" class="btn btn-default lock-answer" data-champion="{{id}}">
-					<img src="http://ddragon.leagueoflegends.com/cdn/6.8.1/img/champion/{{key}}.png" width="80" height="80">
+					<div>
+						<img src="http://ddragon.leagueoflegends.com/cdn/6.8.1/img/champion/{{key}}.png" width="80" height="80">
+						<span style="display: block">{{name}}</span>
+					</div>
 				</button>
 			{{/each}}
 		</div>
