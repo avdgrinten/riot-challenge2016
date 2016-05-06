@@ -369,11 +369,17 @@ LobbyState.prototype.display = function() {
 			error: function(xhr, reason) {
 				if(reason == 'abort')
 					return;
-				
-				displayError({
-					url: "/backend/lobby/{lobbyId}/lock-answer",
-					httpStatus: xhr.status
-				});
+
+				if(xhr.status == 403 && xhr.responseJSON.error == 'lock-failed') {
+					displayError({
+						message: "We are sorry but you can only lock once."
+					});
+				}else{
+					displayError({
+						url: "/backend/lobby/{lobbyId}/lock-answer",
+						httpStatus: xhr.status
+					});
+				}
 			},
 			complete: function(xhr) {
 				assertEquals(self._answerRequest, xhr);
