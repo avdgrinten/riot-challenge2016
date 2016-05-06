@@ -2,9 +2,11 @@
 var frontendUrl;
 
 function displayError(error) {
-	$('#notifications').prepend(templates["alert"]({ 
+	var dom = $.parseHTML(templates["alert"]({ 
 		error: error
 	}));
+
+	$('#notifications').prepend(dom);
 }
 
 var currentScreen = null;
@@ -23,7 +25,8 @@ function HomeScreen() {
 }
 HomeScreen.prototype.display = function() {
 	function playSoloClick(event) {
-		$("#button-solo").prepend(templates["loading-button"]({ }));
+		var dom = $.parseHTML(templates["loading-button"]());
+		$("#button-solo").prepend(dom);
 		$("#button-solo").prop("disabled", true);
 
 		$.post({
@@ -45,7 +48,8 @@ HomeScreen.prototype.display = function() {
 	}
 
 	function playPartyClick(event) {
-		$("#button-party").prepend(templates["loading-button"]({ }));
+		var dom = $.parseHTML(templates["loading-button"]());
+		$("#button-party").prepend(dom);
 		$("#button-party").prop("disabled", true);
 
 		$.post({
@@ -67,7 +71,8 @@ HomeScreen.prototype.display = function() {
 	}
 
 	function switchSummoner(event) {
-		$("#button-switch-summoner").prepend(templates["loading-button"]({ }));
+		var dom = $.parseHTML(templates["loading-button"]());
+		$("#button-switch-summoner").prepend(dom);
 		$("#button-switch-summoner").prop("disabled", true);
 
 		/*
@@ -84,30 +89,33 @@ HomeScreen.prototype.display = function() {
 		*/
 	};
 
-	$('#content').empty().prepend(templates["loading-page"]({ }));
+	var dom = $.parseHTML(templates["loading-page"]());
+	$('#content').empty().prepend(dom);
 
 	$.get({
 		url: '/backend/portal/site',
 		dataType: 'json',
 		success: function(data) {
 			if(data.state == "summoner-home"){
-				$('#content').empty();
-				$('#content').append(templates["summoner-home"]({ 
+				var dom = $.parseHTML(templates["summoner-home"]({ 
 					myself: data.user
 				}));
+				$(dom).find("#button-solo").click(playSoloClick);
+				$(dom).find("#button-party").click(playPartyClick);
+
+				$('#content').empty();
+				$('#content').append(dom);
+
+				var dom = $.parseHTML(templates["header-summoner"]({
+					myself: data.user
+				}));
+				$(dom).find("#button-switch-summoner").click(switchSummoner);
 
 				$('.header-summoner').empty();
-				$('.header-summoner').append(templates["header-summoner"]({
-					myself: data.user
-				}));
-
+				$('.header-summoner').append(dom);
 				$('#checkbox-sound').change(function(event) {
 					playSound = event.currentTarget.checked;
 				});
-
-				$("#button-switch-summoner").click(switchSummoner);
-				$("#button-solo").click(playSoloClick);
-				$("#button-party").click(playPartyClick);
 			}else{
 				displayError({
 					message: "Ouch, the server gave us a response we don't understand.",
@@ -194,10 +202,11 @@ LobbyScreen.prototype.display = function() {
 			$('#lobby-content').empty().append(dom);
 		}else if(type == 'start-game') {
 		}else if(type == 'join-user') {
-			$('#summoner-list').append(templates["summoner"]({
+			var dom = $.parseHTML(templates["summoner"]({
 				index: data.index,
 				summoner: data.user
 			}));
+			$('#summoner-list').append(dom);
 
 			var user = {
 				index: data.index,
@@ -205,14 +214,13 @@ LobbyScreen.prototype.display = function() {
 			};
 			self._userList.push(user);
 		}else if(type == 'round') {
-			var source = templates['question']({
+			var dom = $.parseHTML(templates['question']({
 				round: data.round,
 				numRounds: data.numRounds,
 				mastered: data.question.mastered,
 				choices: data.question.choices
-			});
-			var dom = $($.parseHTML(source));
-			$('.lock-answer', dom).on('click', answerClick);
+			}));
+			$(dom).find('.lock-answer').on('click', answerClick);
 			$('#lobby-content').empty().append(dom);
 		}else if(type == 'seconds-left'){
 			if(data.seconds == 0){
@@ -255,8 +263,9 @@ LobbyScreen.prototype.display = function() {
 	}
 
 	function answerClick(event) {
-		$(this).append(templates['loading-pick']({ }));
-		$('.lock-answer').attr('disabled', 'disabled');
+		var dom = $.parseHTML(templates['loading-pick']());
+		$(this).append(dom);
+		$('.lock-answer').attr('disabled', true);
 		$.post({
 			url: '/backend/lobby/' + self._lobbyId + '/lock-answer',
 			data: JSON.stringify({
@@ -278,13 +287,14 @@ LobbyScreen.prototype.display = function() {
 		});
 	}
 
-	$('#content').empty().prepend(templates["loading-page"]({ }));
+	var dom = $.parseHTML(templates["loading-page"]());
+	$('#content').empty().prepend(dom);
 	$.get({
 		url: '/backend/lobby/' + self._lobbyId + '/site',
 		dataType: "json",
 		success: function(data) {
 			self._index = data.ownIndex;
-			
+
 			var dom = $.parseHTML(templates['lobby']());
 			$('#content').empty().append(dom);
 
@@ -340,16 +350,13 @@ VictoryScreen.prototype.display = function() {
 	};
 
 	var self = this;
-	console.log("winners: ");
-	console.log(this._winners);
-	console.log("users: ");
-	console.log(this._users);
+
 	$('#content').empty();
-	$('#content').append(templates["victory"]({ }));
+	var dom = $.parseHTML(templates["victory"]());
 	self._winners.forEach(function(winner) {
 		self._users.forEach(function(user) {
 			if(user.index == winner) {
-				$('#winner-list').append($('<li></li>').append($('<b></b>').text(user.summoner.displayName)));
+				$(dom).find('#winner-list').append($('<li></li>').append($('<b></b>').text(user.summoner.displayName)));
 			}
 			if(self._ownIndex == winner && playSound) {
 				var audio = new Audio("http://vignette3.wikia.nocookie.net" +
@@ -359,7 +366,8 @@ VictoryScreen.prototype.display = function() {
 			}
 		});
 	});
-	$('#victory-button').click(returnToHome);
+	$(dom).find('#victory-button').click(returnToHome);
+	$('#content').append(dom);
 };
 VictoryScreen.prototype.cancel = function() {
 
@@ -375,7 +383,8 @@ SelectSummonerScreen.prototype.display = function() {
 		var summoner_name = $("#input-summoner-name").val();
 		var platform = $("#select-platform").val();
 
-		$("#btn-submit").prepend(templates["loading-button"]({ }));
+		var dom = $.parseHTML(templates["loading-button"]());
+		$("#btn-submit").prepend(dom);
 		$("#btn-submit").prop("disabled", true);
 
 		$.post({
@@ -415,12 +424,13 @@ SelectSummonerScreen.prototype.display = function() {
 	};
 
 	$('#content').empty();
-	$('#content').append(templates["summoner-select"]({ }));
-	$("#submit").submit(summonerSubmit);
+	var dom = $.parseHTML(templates["summoner-select"]());
+	$(dom).find("#submit").submit(summonerSubmit);
 	if(localStorage.getItem("summonerName") && localStorage.getItem("platform")) {
-		$('#input-summoner-name').val(localStorage.getItem("summonerName"));
-		$('#select-platform').val(localStorage.getItem("platform"));
+		$(dom).find('#input-summoner-name').val(localStorage.getItem("summonerName"));
+		$(dom).find('#select-platform').val(localStorage.getItem("platform"));
 	}
+	$('#content').append(dom);
 };
 SelectSummonerScreen.prototype.cancel = function() {
 
