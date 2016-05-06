@@ -330,7 +330,14 @@ JoinLobbyScreen.prototype.display = function() {
 		url: '/backend/lobby/' + self._lobbyId + '/join',
 		dataType: "json",
 		success: function(data) {
-			console.log(data);
+			displayScreen(new LobbyScreen(self._lobbyId));
+		},
+		error: function(xhr) {
+			displayError({
+				url: "/backend/lobby/{lobbyId}/site",
+				httpStatus: xhr.status,
+				data: JSON.stringify(xhr.responseJSON, null, 4)
+			});
 		}
 	});
 };
