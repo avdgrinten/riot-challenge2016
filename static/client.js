@@ -173,7 +173,7 @@ LobbyScreen.prototype.display = function() {
 				lobbyId: self._lobbyId
 			});
 
-			var dom = $.parseHTML(templates['lobby-select']({
+			var dom = $.parseHTML(templates['arrange-lobby']({ 
 				shareUrl: frontendUrl + state.url
 			}));
 
@@ -191,15 +191,8 @@ LobbyScreen.prototype.display = function() {
 			$(dom).find('#ready-button')
 			.click(readyClick);
 
-			$('#content').empty().append(dom);
+			$('#lobby-content').empty().append(dom);
 		}else if(type == 'start-game') {
-			self._index = data.ownIndex;
-			var source = templates['active-game']({
-				myself: data.user
-			});
-			var dom = $($.parseHTML(source));
-			
-			$('#content').empty().append(dom);
 		}else if(type == 'join-user') {
 			$('#summoner-list').append(templates["summoner"]({
 				index: data.index,
@@ -220,7 +213,7 @@ LobbyScreen.prototype.display = function() {
 			});
 			var dom = $($.parseHTML(source));
 			$('.lock-answer', dom).on('click', answerClick);
-			$('#question-area').empty().append(dom);
+			$('#lobby-content').empty().append(dom);
 		}else if(type == 'seconds-left'){
 			if(data.seconds == 0){
 				$('#timer-text').text("Time is up!");
@@ -290,6 +283,11 @@ LobbyScreen.prototype.display = function() {
 		url: '/backend/lobby/' + self._lobbyId + '/site',
 		dataType: "json",
 		success: function(data) {
+			self._index = data.ownIndex;
+			
+			var dom = $.parseHTML(templates['lobby']());
+			$('#content').empty().append(dom);
+
 			pollUpdates();
 		},
 		error: function(xhr) {
