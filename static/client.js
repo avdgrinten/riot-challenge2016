@@ -9,21 +9,21 @@ function displayError(error) {
 	$('#notifications').prepend(dom);
 }
 
-var currentScreen = null;
+var currentState = null;
 var playSound = false;
 
-function displayScreen(screen) {
-	if(currentScreen)
-		currentScreen.cancel();
-	currentScreen = screen;
-	screen.display();
+function displayState(state) {
+	if(currentState)
+		currentState.cancel();
+	currentState = state;
+	state.display();
 }
 
 
-function HomeScreen() {
+function HomeState() {
 
 }
-HomeScreen.prototype.display = function() {
+HomeState.prototype.display = function() {
 	function playSoloClick(event) {
 		var dom = $.parseHTML(templates["loading-button"]());
 		$("#button-solo").prepend(dom);
@@ -126,7 +126,7 @@ HomeScreen.prototype.display = function() {
 		},
 		error: function(xhr) {
 			if(xhr.status == 400 && xhr.responseJSON.error == 'user-required') {
-				displayScreen(new SelectSummonerScreen({ }));
+				displayState(new SelectSummonerState({ }));
 			}else{
 				displayError({
 					url: "/backend/portal/site",
@@ -136,17 +136,17 @@ HomeScreen.prototype.display = function() {
 		}
 	});
 };
-HomeScreen.prototype.cancel = function() {
+HomeState.prototype.cancel = function() {
 
 };
 
 
-function LobbyScreen(lobby_id) {
+function LobbyState(lobby_id) {
 	this._lobbyId = lobby_id;
 	this._index = null;
 	this._userList = [];
 }
-LobbyScreen.prototype.display = function() {
+LobbyState.prototype.display = function() {
 	var self = this;
 	var sequence_id = 0;
 
@@ -173,6 +173,30 @@ LobbyScreen.prototype.display = function() {
 			}
 		});
 	}
+
+	function showVictoryScreen(users, winners, ownIndex) {
+		function returnToHome(event) {
+			displayState(new HomeState());
+		};
+
+		$('#lobby-content').empty();
+		var dom = $.parseHTML(templates["victory"]());
+		winners.forEach(function(winner) {
+			users.forEach(function(user) {
+				if(user.index == winner) {
+					$(dom).find('#winner-list').append($('<li></li>').append($('<b></b>').text(user.summoner.displayName)));
+				}
+				if(ownIndex == winner && playSound) {
+					var audio = new Audio("http://vignette3.wikia.nocookie.net" +
+							"/leagueoflegends/images/4/46/Female1_OnVictory_1.ogg/" +
+							"revision/latest?cb=20130506193735");
+					audio.play();
+				}
+			});
+		});
+		$(dom).find('#victory-button').click(returnToHome);
+		$('#lobby-content').append(dom);
+	};
 
 	function displayUpdate(type, data) {
 		if(type == 'arrange-lobby') {
@@ -238,7 +262,7 @@ LobbyScreen.prototype.display = function() {
 				$('.summoner[data-index=' + entry.index + '] .score').text(entry.score);
 			});
 		}else if(type == 'game-complete') {
-			displayScreen(new VictoryScreen(self._userList, data.winners, self._index));
+			showVictoryScreen(self._userList, data.winners, self._index);
 		}else{
 			displayError({
 				message: "Ouch, the server gave us a response we don't understand.",
@@ -302,9 +326,9 @@ LobbyScreen.prototype.display = function() {
 		},
 		error: function(xhr) {
 			if(xhr.status == 403 && xhr.responseJSON.error == 'user-not-in-lobby') {
-				displayScreen(new JoinLobbyScreen(self._lobbyId));
+				displayState(new JoinLobbyState(self._lobbyId));
 			}else if(xhr.status == 400 && xhr.responseJSON.error == 'user-required') {
-				displayScreen(new SelectSummonerScreen({
+				displayState(new SelectSummonerState({
 					returnToLobby: self._lobbyId
 				}));
 			}else{
@@ -317,20 +341,21 @@ LobbyScreen.prototype.display = function() {
 		}
 	});
 };
-LobbyScreen.prototype.cancel = function() {
+LobbyState.prototype.cancel = function() {
+
 };
 
-function JoinLobbyScreen(lobby_id) {
+function JoinLobbyState(lobby_id) {
 	this._lobbyId = lobby_id;
 }
-JoinLobbyScreen.prototype.display = function() {
+JoinLobbyState.prototype.display = function() {
 	var self = this;
 
 	$.post({
 		url: '/backend/lobby/' + self._lobbyId + '/join',
 		dataType: "json",
 		success: function(data) {
-			displayScreen(new LobbyScreen(self._lobbyId));
+			displayState(new LobbyState(self._lobbyId));
 		},
 		error: function(xhr) {
 			displayError({
@@ -341,50 +366,15 @@ JoinLobbyScreen.prototype.display = function() {
 		}
 	});
 };
-JoinLobbyScreen.prototype.cancel = function() {
+JoinLobbyState.prototype.cancel = function() {
 
 };
 
 
-function VictoryScreen(users, winners, ownIndex) {
-	this._users = users;
-	this._winners = winners;
-	this._ownIndex = ownIndex;
-}
-VictoryScreen.prototype.display = function() {
-	function returnToHome(event) {
-		displayScreen(new HomeScreen());
-	};
-
-	var self = this;
-
-	$('#content').empty();
-	var dom = $.parseHTML(templates["victory"]());
-	self._winners.forEach(function(winner) {
-		self._users.forEach(function(user) {
-			if(user.index == winner) {
-				$(dom).find('#winner-list').append($('<li></li>').append($('<b></b>').text(user.summoner.displayName)));
-			}
-			if(self._ownIndex == winner && playSound) {
-				var audio = new Audio("http://vignette3.wikia.nocookie.net" +
-						"/leagueoflegends/images/4/46/Female1_OnVictory_1.ogg/" +
-						"revision/latest?cb=20130506193735");
-				audio.play();
-			}
-		});
-	});
-	$(dom).find('#victory-button').click(returnToHome);
-	$('#content').append(dom);
-};
-VictoryScreen.prototype.cancel = function() {
-
-};
-
-
-function SelectSummonerScreen(follow) {
+function SelectSummonerState(follow) {
 	this._follow = follow;
 }
-SelectSummonerScreen.prototype.display = function() {
+SelectSummonerState.prototype.display = function() {
 	var self = this;
 	function summonerSubmit(event) {
 		var summoner_name = $("#input-summoner-name").val();
@@ -404,9 +394,9 @@ SelectSummonerScreen.prototype.display = function() {
 				localStorage.setItem("summonerName", summoner_name);
 				localStorage.setItem("platform", platform);
 				if(self._follow.returnToLobby) {
-					displayScreen(new LobbyScreen(self._follow.returnToLobby));
+					displayState(new LobbyState(self._follow.returnToLobby));
 				}else{
-					displayScreen(new HomeScreen());
+					displayState(new HomeState());
 				}
 			},
 			error: function(xhr) {
@@ -439,39 +429,18 @@ SelectSummonerScreen.prototype.display = function() {
 	}
 	$('#content').append(dom);
 };
-SelectSummonerScreen.prototype.cancel = function() {
+SelectSummonerState.prototype.cancel = function() {
 
 };
 
-
-function PlaySoloScreen() {
-
-}
-PlaySoloScreen.prototype.display = function() {
-
-};
-PlaySoloScreen.prototype.cancel = function() {
-
-};
-
-
-function PlayPartyScreen() {
-
-}
-PlayPartyScreen.prototype.display = function() {
-
-};
-PlayPartyScreen.prototype.cancel = function() {
-
-};
 
 function switchSite(state) {
 	switch(state.site) {
 	case 'portal':
-		displayScreen(new HomeScreen());
+		displayState(new HomeState());
 		break;
 	case 'lobby':
-		displayScreen(new LobbyScreen(state.lobbyId));
+		displayState(new LobbyState(state.lobbyId));
 		break;
 	default:
 		// TODO: replace this by a user-visible error message
@@ -494,13 +463,6 @@ function describeState(state) {
 	default:
 		throw new Error("No such state!");
 	}
-}
-
-function refreshTo(state) {
-	var desc = describeState(state);
-	
-	window.history.replaceState(state, desc.title, desc.url);
-	switchSite(state);
 }
 
 function navigateTo(state) {
