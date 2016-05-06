@@ -166,6 +166,101 @@ LobbyScreen.prototype.display = function() {
 		});
 	}
 
+	function displayUpdate(type, data) {
+		if(type == 'arrange-lobby') {
+			var state = describeState({
+				site: 'lobby',
+				lobbyId: self._lobbyId
+			});
+
+			var dom = $.parseHTML(templates['lobby-select']({
+				shareUrl: frontendUrl + state.url
+			}));
+
+			$(dom).find('#clipboard-button')
+			.tooltip()
+			.click(function(event) {
+				$(".lobby-link", dom).select();
+				try {
+					document.execCommand('copy');
+				} catch (err) {
+					console.log("Unable to copy link!");
+				}
+			});
+
+			$(dom).find('#ready-button')
+			.click(readyClick);
+
+			$('#content').empty().append(dom);
+		}else if(type == 'start-game') {
+			self._index = data.ownIndex;
+			var source = templates['active-game']({
+				myself: data.user
+			});
+			var dom = $($.parseHTML(source));
+			
+			$('#content').empty().append(dom);
+		}else if(type == 'join-user') {
+			$('#summoner-list').append(templates["summoner"]({
+				index: data.index,
+				summoner: data.user
+			}));
+
+			var user = {
+				index: data.index,
+				summoner: data.user
+			};
+			self._userList.push(user);
+		}else if(type == 'round') {
+			var source = templates['question']({
+				round: data.round,
+				numRounds: data.numRounds,
+				mastered: data.question.mastered,
+				choices: data.question.choices
+			});
+			var dom = $($.parseHTML(source));
+			$('.lock-answer', dom).on('click', answerClick);
+			$('#question-area').empty().append(dom);
+		}else if(type == 'seconds-left'){
+			if(data.seconds == 0){
+				$('#timer-text').text("Time is up!");
+			}else if(data.seconds == 1) {
+				$('#timer-text').text("1 second left");
+			}else{
+				$('#timer-text').text(data.seconds + " seconds left");
+			}
+		}else if(type == 'correction'){
+			$('.lock-answer[data-champion=' + data.answer.championId + ']').removeClass('locked-pick');
+			$('.lock-answer[data-champion=' + data.answer.championId + ']').addClass('correct-pick');
+		}else if(type == 'scores'){
+			data.forEach(function(entry) {
+				$('.summoner[data-index=' + entry.index + '] .score').text(entry.score);
+			});
+		}else if(type == 'game-complete') {
+			displayScreen(new VictoryScreen(self._userList, data.winners, self._index));
+		}else{
+			displayError({
+				message: "Ouch, the server gave us a response we don't understand.",
+				details: "Illegal update information",
+				data: type
+			});
+		}
+	}
+
+	function readyClick(event) {
+		$.post({
+			url: '/backend/lobby/' + self._lobbyId + '/ready',
+			success: function(data) {
+			},
+			error: function(xhr) {
+				displayError({
+					url: "/backend/lobby/{lobbyId}/ready",
+					httpStatus: xhr.status
+				});
+			}
+		});
+	}
+
 	function answerClick(event) {
 		$(this).append(templates['loading-pick']({ }));
 		$('.lock-answer').attr('disabled', 'disabled');
@@ -190,102 +285,12 @@ LobbyScreen.prototype.display = function() {
 		});
 	}
 
-	function displayUpdate(type, data) {
-		if(type == 'round') {
-			var source = templates['question']({
-				round: data.round,
-				numRounds: data.numRounds,
-				mastered: data.question.mastered,
-				choices: data.question.choices
-			});
-			var dom = $($.parseHTML(source));
-			$('.lock-answer', dom).on('click', answerClick);
-			$('#question-area').empty().append(dom);
-		}else if(type == 'join-user'){
-			$('#summoner-list').append(templates["summoner"]({
-				index: data.index,
-				summoner: data.user
-			}));
-
-			var user = {
-				index: data.index,
-				summoner: data.user
-			};
-			self._userList.push(user);
-		}else if(type == 'seconds-left'){
-			if(data.seconds == 0){
-				$('#timer-text').text("Time is up!");
-			}else if(data.seconds == 1) {
-				$('#timer-text').text("1 second left");
-			}else{
-				$('#timer-text').text(data.seconds + " seconds left");
-			}
-		}else if(type == 'correction'){
-			$('.lock-answer[data-champion=' + data.answer.championId + ']').removeClass('locked-pick');
-			$('.lock-answer[data-champion=' + data.answer.championId + ']').addClass('correct-pick');
-		}else if(type == 'scores'){
-			console.log(data);
-			data.forEach(function(entry) {
-				$('.summoner[data-index=' + entry.index + '] .score').text(entry.score);
-			});
-		}else if(type == 'game-complete') {
-			displayScreen(new VictoryScreen(self._userList, data.winners, self._index));
-		}else{
-			displayError({
-				message: "Ouch, the server gave us a response we don't understand.",
-				details: "Illegal update information",
-				data: type
-			});
-		}
-	}
-
 	$('#content').empty().prepend(templates["loading-page"]({ }));
 	$.get({
 		url: '/backend/lobby/' + self._lobbyId + '/site',
 		dataType: "json",
 		success: function(data) {
-			if(data.state == 'lobby-select') {
-				var state = describeState({
-					site: "lobby",
-					lobbyId: self._lobbyId
-				});
-
-				var source = templates['lobby-select']({
-					shareUrl: frontendUrl + state.url
-				});
-
-				var dom = $($.parseHTML(source));
-				
-				$("#clipboard-button", dom)
-				.tooltip()
-				.click(function(event) {
-					$(".lobby-link", dom).select();
-					try {
-						document.execCommand('copy');
-					} catch (err) {
-						console.log("Unable to copy link!");
-					}
-				});
-
-				$('#content').empty().append(dom);
-			}else if(data.state == 'active-game') {
-				console.log(data);
-				self._index = data.ownIndex;
-				var source = templates['active-game']({
-					myself: data.user
-				});
-				var dom = $($.parseHTML(source));
-				
-				$('#content').empty().append(dom);
-
-				pollUpdates();
-			}else{
-				displayError({
-					message: "Ouch, the server gave us a response we don't understand.",
-					details: "Illegal state",
-					data: data.state
-				});
-			}
+			pollUpdates();
 		},
 		error: function(xhr) {
 			if(xhr.status == 403 && xhr.responseJSON.error == 'user-not-in-lobby') {
