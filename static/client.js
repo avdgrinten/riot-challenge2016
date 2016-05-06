@@ -53,7 +53,7 @@ HomeState.prototype.display = function() {
 					return;
 
 				displayError({
-					url: "api/play-solo",
+					url: '/backend/portal/play-solo',
 					httpStatus: xhr.status
 				});
 			},
@@ -85,7 +85,7 @@ HomeState.prototype.display = function() {
 					return;
 				
 				displayError({
-					url: "api/play-party",
+					url: '/backend/portal/play-party',
 					httpStatus: xhr.status
 				});
 			},
@@ -101,18 +101,7 @@ HomeState.prototype.display = function() {
 		$("#button-switch-summoner").prepend(dom);
 		$("#button-switch-summoner").prop("disabled", true);
 
-		/*
-		$.post({
-			url: 'backend/portal/exit-session',
-			dataType: 'json',
-			success: function(data) {
-
-			},
-			error: function(xhr) {
-
-			};
-		})
-		*/
+		displayState(new SwitchSummonerState());
 	};
 
 	var dom = $.parseHTML(templates["loading-page"]());
@@ -124,25 +113,20 @@ HomeState.prototype.display = function() {
 		dataType: 'json',
 		success: function(data) {
 			if(data.state == "summoner-home"){
-				var dom = $.parseHTML(templates["summoner-home"]({ 
+				var home_dom = $.parseHTML(templates["summoner-home"]({ 
 					myself: data.user
 				}));
-				$(dom).find("#button-solo").click(playSoloClick);
-				$(dom).find("#button-party").click(playPartyClick);
+				$(home_dom).find("#button-solo").click(playSoloClick);
+				$(home_dom).find("#button-party").click(playPartyClick);
 
-				$('#content').empty();
-				$('#content').append(dom);
+				$('#content').empty().append(home_dom);
 
-				var dom = $.parseHTML(templates["header-summoner"]({
+				var summoner_dom = $.parseHTML(templates["header-summoner"]({
 					myself: data.user
 				}));
-				$(dom).find("#button-switch-summoner").click(switchSummoner);
+				$(summoner_dom).find("#button-switch-summoner").click(switchSummoner);
 
-				$('.header-summoner').empty();
-				$('.header-summoner').append(dom);
-				$('#checkbox-sound').change(function(event) {
-					playSound = event.currentTarget.checked;
-				});
+				$('.header-summoner').empty().append(summoner_dom);
 			}else{
 				displayError({
 					message: "Ouch, the server gave us a response we don't understand.",
@@ -155,7 +139,9 @@ HomeState.prototype.display = function() {
 			if(reason == 'abort')
 				return;
 			
-			if(xhr.status == 400 && xhr.responseJSON.error == 'user-required') {
+			if(xhr.status == 400 && xhr.responseJSON.error == 'session-required') {
+				displayState(new SelectSummonerState({ }));
+			}else if(xhr.status == 403 && xhr.responseJSON.error == 'dead-session') {
 				displayState(new SelectSummonerState({ }));
 			}else{
 				displayError({
@@ -211,7 +197,7 @@ LobbyState.prototype.display = function() {
 					return;
 				
 				displayError({
-					url: "api/poll/:lobby",
+					url: "/backend/lobby/:lobby/updates",
 					httpStatus: xhr.status
 				});
 			},
@@ -407,12 +393,16 @@ LobbyState.prototype.display = function() {
 			if(reason == 'abort')
 				return;
 			
-			if(xhr.status == 403 && xhr.responseJSON.error == 'user-not-in-lobby') {
-				displayState(new JoinLobbyState(self._lobbyId));
-			}else if(xhr.status == 400 && xhr.responseJSON.error == 'user-required') {
+			if(xhr.status == 400 && xhr.responseJSON.error == 'session-required') {
 				displayState(new SelectSummonerState({
 					returnToLobby: self._lobbyId
 				}));
+			}else if(xhr.status == 403 && xhr.responseJSON.error == 'dead-session') {
+				displayState(new SelectSummonerState({
+					returnToLobby: self._lobbyId
+				}));
+			}else if(xhr.status == 403 && xhr.responseJSON.error == 'user-not-in-lobby') {
+				displayState(new JoinLobbyState(self._lobbyId));
 			}else{
 				displayError({
 					url: "/backend/lobby/{lobbyId}/site",
@@ -477,6 +467,7 @@ JoinLobbyState.prototype.cancel = function() {
 
 function SelectSummonerState(follow) {
 	this._follow = follow;
+
 	this._submitRequest = null;
 }
 SelectSummonerState.prototype.display = function() {
@@ -511,14 +502,14 @@ SelectSummonerState.prototype.display = function() {
 				
 				if(xhr.status == 403 && xhr.responseJSON.error == 'summoner-not-found') {
 					displayError({
-						url: "api/select-summoner",
+						url: '/backend/portal/select-summoner',
 						httpStatus: xhr.status
 					});
 					$(".center", "#btn-submit").remove();
 					$("#btn-submit").prop("disabled", false);
 				}else{
 					displayError({
-						url: "api/select-summoner",
+						url: '/backend/portal/select-summoner',
 						httpStatus: xhr.status
 					});
 				}
@@ -549,13 +540,32 @@ SelectSummonerState.prototype.cancel = function() {
 
 
 function SwitchSummonerState() {
-
+	this._switchRequest = null;
 }
 SwitchSummonerState.prototype.display = function() {
+	var self = this;
 
+	this._switchRequest = $.post({
+		url: '/backend/portal/cancel-session',
+		success: function(data) {
+			console.log("cancel-session");
+			displayState(new SelectSummonerState({ }));
+		},
+		error: function(xhr, reason) {
+			displayError({
+				url: "/backend/portal/cancel-session",
+				httpStatus: xhr.status
+			});
+		},
+		complete: function(xhr) {
+			assertEquals(self._switchRequest, xhr);
+			self._switchRequest = null;
+		}
+	});
 };
 SwitchSummonerState.prototype.cancel = function() {
-
+	if(this._switchRequest)
+		this._switchRequest.abort();
 };
 
 
@@ -603,6 +613,10 @@ window.onpopstate = function(event) {
 
 $(document).ready(function() {
 	frontendUrl = $('html').data('frontendUrl');
+	
+	$('#checkbox-sound').change(function(event) {
+		playSound = event.currentTarget.checked;
+	});
 
 	var state = {
 		site: $('html').data('site'),
