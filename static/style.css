@@ -114,9 +114,13 @@ footer {
 	padding: 0px;
 }
 
-.header-content {
+.header-summoner {
 	float: right;
 	padding-top: 25px;
+}
+
+.header-summoner .name {
+	padding-right: 10px;
 }
 
 .header-heading {
@@ -213,4 +217,10 @@ footer {
 
 .question-list-item {
 	padding: 10px;
+}
+
+.header-sound {
+	float: right;
+	margin-top: 30px;
+	margin-left: 10px;
 }

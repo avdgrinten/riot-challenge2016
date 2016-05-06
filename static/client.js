@@ -8,6 +8,7 @@ function displayError(error) {
 }
 
 var currentScreen = null;
+var playSound = false;
 
 function displayScreen(screen) {
 	if(currentScreen)
@@ -95,10 +96,14 @@ HomeScreen.prototype.display = function() {
 					myself: data.user
 				}));
 
-				$('.header-content').empty();
-				$('.header-content').append(templates["header-content"]({
+				$('.header-summoner').empty();
+				$('.header-summoner').append(templates["header-summoner"]({
 					myself: data.user
 				}));
+
+				$('#checkbox-sound').change(function(event) {
+					playSound = event.currentTarget.checked;
+				});
 
 				$("#button-switch-summoner").click(switchSummoner);
 				$("#button-solo").click(playSoloClick);
@@ -343,7 +348,7 @@ VictoryScreen.prototype.display = function() {
 			if(user.index == winner) {
 				$('#winner-list').append($('<li></li>').append($('<b></b>').text(user.summoner.displayName)));
 			}
-			if(self._ownIndex == winner) {
+			if(self._ownIndex == winner && playSound) {
 				var audio = new Audio("http://vignette3.wikia.nocookie.net" +
 						"/leagueoflegends/images/4/46/Female1_OnVictory_1.ogg/" +
 						"revision/latest?cb=20130506193735");
