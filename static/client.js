@@ -167,7 +167,6 @@ HomeState.prototype.cancel = function() {
 function LobbyState(lobby_id) {
 	this._lobbyId = lobby_id;
 	this._ownIndex = null;
-	this._userList = [];
 
 	this._sequenceId = 0;
 	this._isAlive = true;
@@ -274,7 +273,6 @@ LobbyState.prototype.display = function() {
 				index: data.index,
 				summoner: data.user
 			};
-			self._userList.push(user);
 		}else if(type == 'round') {
 			var dom = $.parseHTML(templates['question']({
 				round: data.round,
@@ -297,9 +295,22 @@ LobbyState.prototype.display = function() {
 			$('.lock-answer[data-champion=' + data.answer.championId + ']').addClass('correct-pick');
 			$('.lock-answer').attr('disabled', true);
 		}else if(type == 'scores'){
-			data.forEach(function(entry) {
+			console.log(data);
+			data.absolute.forEach(function(entry) {
 				$('.summoner[data-index=' + entry.index + '] .score').text(entry.score);
 			});
+
+			var delta_dom = $.parseHTML(templates['delta-score']({
+				delta: data.delta.map(function(delta) {
+					return {
+						score: delta.score,
+						displayName: delta.summoner.displayName,
+						profileIcon: delta.summoner.profileIcon
+					};
+				})
+			}));
+
+			$('.delta-score').append(delta_dom);
 		}else if(type == 'game-complete') {
 			showVictoryScreen(data.winners, data.runners);
 		}else if(type == 'close-lobby') {
