@@ -169,6 +169,9 @@ function LobbyState(lobby_id) {
 	this._index = null;
 	this._userList = [];
 
+	this._sequenceId = 0;
+	this._isAlive = true;
+
 	this._updateRequest = null;
 	this._siteRequest = null;
 	this._readyRequest = null;
@@ -176,21 +179,20 @@ function LobbyState(lobby_id) {
 }
 LobbyState.prototype.display = function() {
 	var self = this;
-	var sequence_id = 0;
 
 	function pollUpdates() {
 		assertEquals(self._updateRequest, null);
 		self._updateRequest = $.post({
 			url: backendUrl + '/backend/lobby/' + self._lobbyId
-					+ '/updates?sequenceId=' + sequence_id,
+					+ '/updates?sequenceId=' + self._sequenceId,
 			dataType: "json",
 			success: function(data) {
 				data.forEach(function(update) {
-					if(update.sequenceId != sequence_id)
+					if(update.sequenceId != self._sequenceId)
 						throw new Error("Out-of-order update");
 					displayUpdate(update.type, update.data);
 
-					sequence_id++;
+					self._sequenceId++;
 				});
 			},
 			error: function(xhr, reason) {
@@ -207,7 +209,8 @@ LobbyState.prototype.display = function() {
 				self._updateRequest = null;
 
 				if(reason == 'success') {
-					pollUpdates();
+					if(self._isAlive)
+						pollUpdates();
 				}else{
 					console.warn("pollUpdates completed by: " + reason);
 				}
@@ -298,6 +301,8 @@ LobbyState.prototype.display = function() {
 			});
 		}else if(type == 'game-complete') {
 			showVictoryScreen(self._userList, data.winners, self._index);
+		}else if(type == 'close-lobby') {
+			self._isAlive = false;
 		}else{
 			displayError({
 				message: "Ouch, the server gave us a response we don't understand.",
