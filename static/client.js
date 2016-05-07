@@ -107,7 +107,6 @@ HomeState.prototype.display = function() {
 		url: backendUrl + '/backend/portal/site',
 		dataType: 'json',
 		success: function(data) {
-			console.log(data);
 			var home_dom = $.parseHTML(templates["summoner-home"]({ 
 				myself: data.user,
 				lobbies: data.lobbies.map(function(lobby) {
@@ -123,7 +122,7 @@ HomeState.prototype.display = function() {
 
 			$(home_dom).find("#lobby-list .continue-link").click(function(event){
 				event.preventDefault();
-				
+
 				navigateTo("/" + $(event.currentTarget).data('lobbyId'));
 			});
 
@@ -222,20 +221,17 @@ LobbyState.prototype.display = function() {
 		}
 
 		$('#lobby-content').empty();
-		var dom = $.parseHTML(templates["victory"]());
-		winners.forEach(function(winner) {
-			users.forEach(function(user) {
-				if(user.index == winner) {
-					$(dom).find('#winner-list').append($('<li></li>').append($('<b></b>').text(user.summoner.displayName)));
-				}
-				if(ownIndex == winner && playSound) {
-					var audio = new Audio("http://vignette3.wikia.nocookie.net" +
-							"/leagueoflegends/images/4/46/Female1_OnVictory_1.ogg/" +
-							"revision/latest?cb=20130506193735");
-					audio.play();
-				}
-			});
-		});
+		var dom = $.parseHTML(templates["victory"]({
+			winners: winners
+		}));
+
+		if(winners.index == ownIndex && playSound) {
+			var audio = new Audio("http://vignette3.wikia.nocookie.net" +
+					"/leagueoflegends/images/4/46/Female1_OnVictory_1.ogg/" +
+					"revision/latest?cb=20130506193735");
+			audio.play();
+		}
+
 		$(dom).find('#victory-button').click(returnToHome);
 		$('#lobby-content').append(dom);
 	};
@@ -263,9 +259,10 @@ LobbyState.prototype.display = function() {
 			$('#lobby-content').empty().append(dom);
 		}else if(type == 'start-game') {
 		}else if(type == 'join-user') {
+			console.log(data);
 			var dom = $.parseHTML(templates["summoner"]({
 				index: data.index,
-				summoner: data.user
+				summoner: data.summoner
 			}));
 			$('#summoner-list').append(dom);
 
