@@ -10,6 +10,7 @@ const mongodb = require('mongodb');
 const express = require('express');
 
 const setup = require('./lib/setup.js');
+const StaticData = require('./lib/static-data.js');
 const crawl = require('./lib/crawl.js');
 const gameLogic = require('./lib/game-logic.js');
 const riotApi = require('./lib/riot-api.js');
@@ -18,6 +19,7 @@ const Backend = require('./lib/backend.js');
 
 let config;
 let db;
+let staticData;
 let realtimeCrawler;
 let backgroundCrawler;
 let logic;
@@ -40,6 +42,17 @@ let connectDb = function() {
 		console.log("Connected to DB");
 		db = connected_db;
 	});
+};
+
+let initStaticData = function() {
+	return new Promise((resolve, reject) => {
+		staticData = new StaticData({
+			db: db,
+			apiKey: config.apiKey
+		});
+		resolve();
+	})
+	.then(() => staticData.initialize());
 };
 
 let initRealtimeCrawler = function() {
@@ -72,6 +85,7 @@ let initLogic = function() {
 		logic = new gameLogic.Logic({
 			db: db,
 			apiKey: config.apiKey,
+			staticData: staticData,
 			crawler: realtimeCrawler
 		});
 		resolve();
@@ -130,6 +144,7 @@ let main = function() {
 
 			return readConfig()
 			.then(connectDb)
+			.then(initStaticData)
 			.then(initRealtimeCrawler)
 			.then(initBackgroundCrawler)
 			.then(initLogic)
