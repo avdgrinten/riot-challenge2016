@@ -1,5 +1,6 @@
 
-var frontendUrl;
+var baseUrl;
+var backendUrl;
 
 function assertEquals(a, b) {
 	if(a != b)
@@ -40,13 +41,10 @@ HomeState.prototype.display = function() {
 
 		assertEquals(self._playRequest, null);
 		self._playRequest = $.post({
-			url: '/backend/portal/play-solo',
+			url: backendUrl + '/backend/portal/play-solo',
 			dataType: 'json',
 			success: function(data) {
-				navigateTo({
-					site: "lobby",
-					lobbyId: data.lobbyId
-				});
+				navigateTo('/'  + data.lobbyId);
 			},
 			error: function(xhr, reason) {
 				if(reason == 'abort')
@@ -72,13 +70,10 @@ HomeState.prototype.display = function() {
 
 		assertEquals(self._playRequest, null);
 		self._playRequest = $.post({
-			url: '/backend/portal/play-party',
+			url: backendUrl + '/backend/portal/play-party',
 			dataType: 'json',
 			success: function(data) {
-				navigateTo({
-					site: "lobby",
-					lobbyId: data.lobbyId
-				});
+				navigateTo('/'  + data.lobbyId);
 			},
 			error: function(xhr, reason) {
 				if(reason == 'abort')
@@ -109,7 +104,7 @@ HomeState.prototype.display = function() {
 
 	assertEquals(self._siteRequest, null);
 	self._siteRequest = $.get({
-		url: '/backend/portal/site',
+		url: backendUrl + '/backend/portal/site',
 		dataType: 'json',
 		success: function(data) {
 			console.log(data);
@@ -174,7 +169,8 @@ LobbyState.prototype.display = function() {
 	function pollUpdates() {
 		assertEquals(self._updateRequest, null);
 		self._updateRequest = $.post({
-			url: '/backend/lobby/' + self._lobbyId + '/updates?sequenceId=' + sequence_id,
+			url: backendUrl + '/backend/lobby/' + self._lobbyId
+					+ '/updates?sequenceId=' + sequence_id,
 			dataType: "json",
 			success: function(data) {
 				data.forEach(function(update) {
@@ -209,9 +205,7 @@ LobbyState.prototype.display = function() {
 
 	function showVictoryScreen(users, winners, ownIndex) {
 		function returnToHome(event) {
-			navigateTo({
-				site: "portal"
-			});
+			navigateTo('/');
 		}
 
 		$('#lobby-content').empty();
@@ -235,13 +229,8 @@ LobbyState.prototype.display = function() {
 
 	function displayUpdate(type, data) {
 		if(type == 'arrange-lobby') {
-			var state = describeState({
-				site: 'lobby',
-				lobbyId: self._lobbyId
-			});
-
 			var dom = $.parseHTML(templates['arrange-lobby']({ 
-				shareUrl: frontendUrl + state.url
+				shareUrl: baseUrl + '/' + self._lobbyId
 			}));
 
 			$(dom).find('#clipboard-button')
@@ -310,7 +299,7 @@ LobbyState.prototype.display = function() {
 	function readyClick(event) {
 		assertEquals(self._readyRequest, null);
 		self._readyRequest = $.post({
-			url: '/backend/lobby/' + self._lobbyId + '/ready',
+			url: backendUrl + '/backend/lobby/' + self._lobbyId + '/ready',
 			success: function(data) {
 			},
 			error: function(xhr, reason) {
@@ -336,7 +325,7 @@ LobbyState.prototype.display = function() {
 
 		assertEquals(self._answerRequest, null);
 		self._answerRequest = $.post({
-			url: '/backend/lobby/' + self._lobbyId + '/lock-answer',
+			url: backendUrl + '/backend/lobby/' + self._lobbyId + '/lock-answer',
 			data: JSON.stringify({
 				answer: {
 					championId: $(this).data('champion')
@@ -374,7 +363,7 @@ LobbyState.prototype.display = function() {
 
 	assertEquals(this._siteRequest, null);
 	this._siteRequest = $.get({
-		url: '/backend/lobby/' + self._lobbyId + '/site',
+		url: backendUrl + '/backend/lobby/' + self._lobbyId + '/site',
 		dataType: "json",
 		success: function(data) {
 			self._index = data.ownIndex;
@@ -433,7 +422,7 @@ JoinLobbyState.prototype.display = function() {
 
 	assertEquals(this._joinRequest, null);
 	this._joinRequest = $.post({
-		url: '/backend/lobby/' + self._lobbyId + '/join',
+		url: backendUrl + '/backend/lobby/' + self._lobbyId + '/join',
 		dataType: "json",
 		success: function(data) {
 			displayState(new LobbyState(self._lobbyId));
@@ -477,7 +466,7 @@ SelectSummonerState.prototype.display = function() {
 
 		assertEquals(self._submitRequest, null);
 		self._submitRequest = $.post({
-			url: '/backend/portal/select-summoner',
+			url: backendUrl + '/backend/portal/select-summoner',
 			data: JSON.stringify({
 				summonerName: summoner_name,
 				platform: platform
@@ -541,7 +530,7 @@ SwitchSummonerState.prototype.display = function() {
 	var self = this;
 
 	this._switchRequest = $.post({
-		url: '/backend/portal/cancel-session',
+		url: backendUrl + '/backend/portal/cancel-session',
 		success: function(data) {
 			displayState(new SelectSummonerState({ }));
 		},
@@ -562,63 +551,66 @@ SwitchSummonerState.prototype.cancel = function() {
 		this._switchRequest.abort();
 };
 
-
-function switchSite(state) {
-	switch(state.site) {
-	case 'portal':
-		displayState(new HomeState());
-		break;
-	case 'lobby':
-		displayState(new LobbyState(state.lobbyId));
-		break;
-	default:
-		// TODO: replace this by a user-visible error message
-		throw new Error("Unexpected data-site");
-	}
+function Router() {
+	this._routes = [ ];
 }
+Router.prototype.on = function(spec, handler) {
+	this._routes.push({
+		spec: spec,
+		handler: handler
+	});
+};
+Router.prototype.handle = function(desc) {
+	if(!desc)
+		desc = {
+			path: window.location.pathname,
+			params: { }
+		};
 
-function describeState(state) {
-	switch(state.site) {
-	case 'portal':
-		return {
-			url: '/',
-			title: 'Guess my main!',
-		};
-	case 'lobby':
-		return {
-			url: '/' + state.lobbyId,
-			title: 'Guess my main!',
-		};
-	default:
-		throw new Error("No such state!");
+	for(var i = 0; i < this._routes.length; i++) {
+		if(this._testRoute(desc, this._routes[i]))
+			return;
 	}
-}
+};
+Router.prototype._testRoute = function(desc, route) {
+	var match = route.spec.exec(desc.path);
+	if(!match || match[0] != desc.path)
+		return false;
 
-function navigateTo(state) {
-	var desc = describeState(state);
+	for(var i = 1; i < match.length; i++)
+		desc.params[i - 1] = match[i];
 	
-	window.history.pushState(state, desc.title, desc.url);
-	switchSite(state);
+	route.handler(desc);
+
+	return true;
+};
+
+var router = new Router();
+router.on(/\//, function(desc) {
+	displayState(new HomeState());
+});
+router.on(/^\/((?:[a-zA-Z0-9+-]{4})+)$/, function(desc) {
+	displayState(new LobbyState(desc.params[0]));
+});
+
+function navigateTo(url) {
+	window.history.pushState(null, 'Guess my main!', url);
+	router.handle();
 }
 
 window.onpopstate = function(event) {
-	switchSite(event.state);
+	router.handle();
 };
 
 $(document).ready(function() {
-	frontendUrl = $('html').data('frontendUrl');
+	baseUrl = window.location.protocol + '//' + window.location.host
+			+ $('html').data('mountPath');
+	backendUrl = $('html').data('backendUrl') || baseUrl;
 	
 	$('#checkbox-sound').change(function(event) {
 		playSound = event.currentTarget.checked;
 	});
 
-	var state = {
-		site: $('html').data('site'),
-		lobbyId: $('html').data('lobbyId')
-	};
-	var desc = describeState(state);
-
-	window.history.replaceState(state, desc.title, desc.url);
-	switchSite(state);
+	router.handle();
 });
 
