@@ -129,6 +129,7 @@ footer {
 
 #summoner-list,
 #winner-list,
+#runners-list,
 #lobby-list {
 	list-style-type: none;
 	padding: 0px;
@@ -228,4 +229,13 @@ footer {
 
 .victory-button {
 	margin-top: 50px;
+}
+
+.victory-gold-icon {
+	margin-left: 10px;
+}
+
+#winner-list > li,
+#runners-list > li {
+	margin-bottom: 5px;
 }

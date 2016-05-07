@@ -1,12 +1,26 @@
 
 <div class="col-xs-12">
 	<div class="center">
-		<h3>Winners of this round:</h3>
+		<h3>Congratulations to:</h3>
 		<ul id="winner-list">
 		{{#each winners}}
-			<li><b><img src={{summoner.profileIcon}} width="40" height="40"> {{summoner.displayName}}</b></li>
+			<li>
+				<img src={{summoner.profileIcon}} width="40" height="40"> {{summoner.displayName}}
+				<img src="/static/gold.png" class="victory-gold-icon"> {{score}}
+			</li>
 		{{/each}}
 		</ul>
+		{{#if runners}}
+		<h3>Runners-up:</h3>
+		<ul id="runners-list">
+		{{#each runners}}
+			<li>
+				<img src={{summoner.profileIcon}} width="40" height="40"> {{summoner.displayName}}
+				<img src="/static/gold.png" class="victory-gold-icon"> {{score}}
+			</li>
+		{{/each}}
+		</ul>
+		{{/if}}
 		<button id="victory-button" class="btn btn-default victory-button">Return to Home</button>
 	</div>
 </div>

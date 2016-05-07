@@ -166,7 +166,7 @@ HomeState.prototype.cancel = function() {
 
 function LobbyState(lobby_id) {
 	this._lobbyId = lobby_id;
-	this._index = null;
+	this._ownIndex = null;
 	this._userList = [];
 
 	this._sequenceId = 0;
@@ -218,17 +218,18 @@ LobbyState.prototype.display = function() {
 		});
 	}
 
-	function showVictoryScreen(users, winners, ownIndex) {
+	function showVictoryScreen(winners, runners) {
 		function returnToHome(event) {
 			navigateTo('/');
 		}
 
 		$('#lobby-content').empty();
 		var dom = $.parseHTML(templates["victory"]({
-			winners: winners
+			winners: winners,
+			runners: runners
 		}));
 
-		if(winners.index == ownIndex && playSound) {
+		if(winners.index == self._ownIndex && playSound) {
 			var audio = new Audio("http://vignette3.wikia.nocookie.net" +
 					"/leagueoflegends/images/4/46/Female1_OnVictory_1.ogg/" +
 					"revision/latest?cb=20130506193735");
@@ -300,7 +301,7 @@ LobbyState.prototype.display = function() {
 				$('.summoner[data-index=' + entry.index + '] .score').text(entry.score);
 			});
 		}else if(type == 'game-complete') {
-			showVictoryScreen(self._userList, data.winners, self._index);
+			showVictoryScreen(data.winners, data.runners);
 		}else if(type == 'close-lobby') {
 			self._isAlive = false;
 		}else{
@@ -382,7 +383,7 @@ LobbyState.prototype.display = function() {
 		url: backendUrl + '/backend/lobby/' + self._lobbyId + '/site',
 		dataType: "json",
 		success: function(data) {
-			self._index = data.ownIndex;
+			self._ownIndex = data.ownIndex;
 
 			var dom = $.parseHTML(templates['lobby']());
 			$('#content').empty().append(dom);
