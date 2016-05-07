@@ -112,28 +112,21 @@ HomeState.prototype.display = function() {
 		url: '/backend/portal/site',
 		dataType: 'json',
 		success: function(data) {
-			if(data.state == "summoner-home"){
-				var home_dom = $.parseHTML(templates["summoner-home"]({ 
-					myself: data.user
-				}));
-				$(home_dom).find("#button-solo").click(playSoloClick);
-				$(home_dom).find("#button-party").click(playPartyClick);
+			console.log(data);
+			var home_dom = $.parseHTML(templates["summoner-home"]({ 
+				myself: data.user
+			}));
+			$(home_dom).find("#button-solo").click(playSoloClick);
+			$(home_dom).find("#button-party").click(playPartyClick);
 
-				$('#content').empty().append(home_dom);
+			$('#content').empty().append(home_dom);
 
-				var summoner_dom = $.parseHTML(templates["header-summoner"]({
-					myself: data.user
-				}));
-				$(summoner_dom).find("#button-switch-summoner").click(switchSummoner);
+			var summoner_dom = $.parseHTML(templates["header-summoner"]({
+				myself: data.user
+			}));
+			$(summoner_dom).find("#button-switch-summoner").click(switchSummoner);
 
-				$('.header-summoner').empty().append(summoner_dom);
-			}else{
-				displayError({
-					message: "Ouch, the server gave us a response we don't understand.",
-					details: "Illegal state",
-					data: data.state
-				});
-			}
+			$('.header-summoner').empty().append(summoner_dom);
 		},
 		error: function(xhr, reason) {
 			if(reason == 'abort')
@@ -208,7 +201,7 @@ LobbyState.prototype.display = function() {
 				if(reason == 'success') {
 					pollUpdates();
 				}else{
-					console.log("pollUpdates: " + reason);
+					console.warn("pollUpdates completed by: " + reason);
 				}
 			}
 		});
@@ -258,7 +251,7 @@ LobbyState.prototype.display = function() {
 				try {
 					document.execCommand('copy');
 				} catch (err) {
-					console.log("Unable to copy link!");
+					console.error("Unable to copy link!");
 				}
 			});
 
@@ -280,7 +273,6 @@ LobbyState.prototype.display = function() {
 			};
 			self._userList.push(user);
 		}else if(type == 'round') {
-			console.log(data);
 			var dom = $.parseHTML(templates['question']({
 				round: data.round,
 				numRounds: data.numRounds,
@@ -551,7 +543,6 @@ SwitchSummonerState.prototype.display = function() {
 	this._switchRequest = $.post({
 		url: '/backend/portal/cancel-session',
 		success: function(data) {
-			console.log("cancel-session");
 			displayState(new SelectSummonerState({ }));
 		},
 		error: function(xhr, reason) {
