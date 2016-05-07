@@ -1,5 +1,8 @@
-
+{{#if lobbies}}
+<div class="col-xs-12 col-sm-9">
+{{else}}
 <div class="col-xs-12">
+{{/if}}
 	<p class="home-text">
 		Hello <img src={{myself.profileIcon}} width="32" height ="32"> {{myself.displayName}}.
 		<br>
@@ -10,3 +13,13 @@
 		<button id="button-party" btype="button" class="btn btn-default home-button">Party</button>
 	</p>
 </div>
+{{#if lobbies}}
+<div class="col-xs-12 col-sm-3">
+	<b>Continue playing in:</b>
+	<ul id="lobby-list" class="no-padding">
+		{{#each lobbies}}
+		<li><a  data-lobby-id={{id}} class="continue-link" href={{url}}>{{name}}</a></li>
+		{{/each}}
+	</ul>
+</div>
+{{/if}}

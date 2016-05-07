@@ -109,10 +109,23 @@ HomeState.prototype.display = function() {
 		success: function(data) {
 			console.log(data);
 			var home_dom = $.parseHTML(templates["summoner-home"]({ 
-				myself: data.user
+				myself: data.user,
+				lobbies: data.lobbies.map(function(lobby) {
+					return {
+						id: lobby.id,
+						url: baseUrl + '/' + lobby.id,
+						name: lobby.name
+					};
+				})
 			}));
 			$(home_dom).find("#button-solo").click(playSoloClick);
 			$(home_dom).find("#button-party").click(playPartyClick);
+
+			$(home_dom).find("#lobby-list .continue-link").click(function(event){
+				event.preventDefault();
+				
+				navigateTo("/" + $(event.currentTarget).data('lobbyId'));
+			});
 
 			$('#content').empty().append(home_dom);
 
@@ -457,6 +470,8 @@ function SelectSummonerState(follow) {
 SelectSummonerState.prototype.display = function() {
 	var self = this;
 	function summonerSubmit(event) {
+		event.preventDefault();
+
 		var summoner_name = $("#input-summoner-name").val();
 		var platform = $("#select-platform").val();
 
@@ -504,8 +519,6 @@ SelectSummonerState.prototype.display = function() {
 			},
 			contentType: 'application/json'
 		});
-		
-		event.preventDefault();
 	};
 
 	$('#content').empty();
