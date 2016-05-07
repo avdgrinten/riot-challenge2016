@@ -516,8 +516,7 @@ SelectSummonerState.prototype.display = function() {
 				
 				if(xhr.status == 403 && xhr.responseJSON.error == 'summoner-not-found') {
 					displayError({
-						url: '/backend/portal/select-summoner',
-						httpStatus: xhr.status
+						message: "The summoner name you entered was not found in this region."
 					});
 					$(".center", "#btn-submit").remove();
 					$("#btn-submit").prop("disabled", false);

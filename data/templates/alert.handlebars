@@ -8,9 +8,11 @@
 		<br>
 		{{#if error.message}}
 			{{error.message}}
+			{{#if error.details}}
 			<br>
 			Details: {{error.details}}
 			<br>
+			{{/if}}
 		{{/if}}
 		{{#if error.url}}
 			Something went wrong while communicating with the server.
