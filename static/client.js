@@ -300,6 +300,14 @@ LobbyState.prototype.display = function() {
 				$('.summoner[data-index=' + entry.index + '] .score').text(entry.score);
 			});
 
+			var sorted = $('.summoner').toArray().sort(function(a, b) {
+				var a_score = parseInt($(a).find('.score').text());
+				var b_score = parseInt($(b).find('.score').text());
+				return b_score - a_score;
+			});
+			$(sorted).detach();
+			$('#summoner-list').append(sorted);
+
 			var delta_dom = $.parseHTML(templates['delta-score']({
 				delta: data.delta.map(function(delta) {
 					return {
