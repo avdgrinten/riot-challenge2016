@@ -57,10 +57,11 @@ let initStaticData = function() {
 
 let initRealtimeCrawler = function() {
 	return new Promise((resolve, reject) => {
+		let rate = config.realtimeRate || 8;
 		realtimeCrawler = new crawl.RealtimeCrawler({
 			db: db,
 			apiKey: config.apiKey,
-			queue: new riotApi.ThrottleQueue(8, 10)
+			queue: new riotApi.ThrottleQueue(rate, 10)
 		});
 		resolve();
 	})
@@ -68,11 +69,12 @@ let initRealtimeCrawler = function() {
 };
 
 let initBackgroundCrawler = function() {
+	let rate = config.backgroundRate || 2;
 	return new Promise((resolve, reject) => {
 		backgroundCrawler = new crawl.BackgroundCrawler({
 			db: db,
 			apiKey: config.apiKey,
-			queue: new riotApi.ThrottleQueue(2, 10)
+			queue: new riotApi.ThrottleQueue(rate, 10)
 		});
 		resolve();
 	})
