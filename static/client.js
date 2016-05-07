@@ -291,6 +291,7 @@ LobbyState.prototype.display = function() {
 		}else if(type == 'correction'){
 			$('.lock-answer[data-champion=' + data.answer.championId + ']').removeClass('locked-pick');
 			$('.lock-answer[data-champion=' + data.answer.championId + ']').addClass('correct-pick');
+			$('.lock-answer').attr('disabled', true);
 		}else if(type == 'scores'){
 			data.forEach(function(entry) {
 				$('.summoner[data-index=' + entry.index + '] .score').text(entry.score);
@@ -329,8 +330,8 @@ LobbyState.prototype.display = function() {
 	}
 
 	function answerClick(event) {
-		var dom = $.parseHTML(templates['loading-pick']());
-		$(this).append(dom);
+		var loading_dom = $.parseHTML(templates['loading-button']());
+		$(event.currentTarget).find('span').prepend(loading_dom);
 		$('.lock-answer').attr('disabled', true);
 
 		assertEquals(self._answerRequest, null);
@@ -344,7 +345,7 @@ LobbyState.prototype.display = function() {
 			contentType: 'application/json',
 			success: function(data) {
 				$(event.currentTarget).addClass('locked-pick');
-				$(".loading-pick", event.currentTarget).remove();
+				$(loading_dom).detach();
 			},
 			error: function(xhr, reason) {
 				if(reason == 'abort')

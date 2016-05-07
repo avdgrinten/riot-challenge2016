@@ -155,11 +155,11 @@ footer {
 }
 
 .locked-pick, .btn.locked-pick:hover {
-	background-color: #FFDA5F;
+	background-color: #FDE74C;
 }
 
-.correct-pick, btn.correct-pick:hover {
-	background-color: #49FA5D;
+.correct-pick, .btn.correct-pick:hover {
+	background-color: #9BC53D;
 }
 
 #round-container {
