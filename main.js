@@ -83,8 +83,6 @@ let initBackgroundCrawler = function() {
 let initLogic = function() {
 	return new Promise((resolve, reject) => {
 		logic = new gameLogic.Logic({
-			db: db,
-			apiKey: config.apiKey,
 			staticData: staticData,
 			crawler: realtimeCrawler
 		});
@@ -156,7 +154,8 @@ let main = function() {
 			})
 			.then(() => {
 				backend = new Backend({
-					logic: logic
+					logic: logic,
+					crawler: realtimeCrawler
 				});
 			})
 			.then(() => {
