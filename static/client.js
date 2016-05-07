@@ -171,6 +171,8 @@ function LobbyState(lobby_id) {
 	this._sequenceId = 0;
 	this._isAlive = true;
 
+	this._headingDom = null;
+
 	this._updateRequest = null;
 	this._siteRequest = null;
 	this._readyRequest = null;
@@ -407,6 +409,11 @@ LobbyState.prototype.display = function() {
 			var dom = $.parseHTML(templates['lobby']());
 			$('#content').empty().append(dom);
 
+			self._headingDom = $.parseHTML(templates['lobby-heading']({
+				name: data.name
+			}));
+			$('.header-heading').append(self._headingDom);
+
 			pollUpdates();
 		},
 		error: function(xhr, reason) {
@@ -438,6 +445,8 @@ LobbyState.prototype.display = function() {
 	});
 };
 LobbyState.prototype.cancel = function() {
+	$(this._headingDom).detach();
+
 	if(this._siteRequest)
 		this._siteRequest.abort();
 	if(this._updateRequest)
