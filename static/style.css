@@ -117,6 +117,7 @@ footer {
 .header-summoner {
 	float: right;
 	padding-top: 25px;
+	margin-bottom: 10px;
 }
 
 .header-summoner .name {
@@ -224,7 +225,7 @@ footer {
 
 .header-sound {
 	float: right;
-	margin-top: 30px;
+	margin-top: 22px;
 	margin-left: 10px;
 }
 
