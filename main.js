@@ -10,9 +10,8 @@ const minimist = require('minimist');
 const mongodb = require('mongodb');
 const express = require('express');
 
-const setup = require('./lib/setup.js');
 const dbUtils = require('./lib/db-utils.js');
-const StaticData = require('./lib/static-data.js');
+const staticData = require('./lib/static-data.js');
 const crawl = require('./lib/crawl.js');
 const gameLogic = require('./lib/game-logic.js');
 const riotApi = require('./lib/riot-api.js');
@@ -20,12 +19,13 @@ const Frontend = require('./lib/frontend.js');
 const Backend = require('./lib/backend.js');
 
 let config;
+let db;
 let collections = {
-	patches: null,
+	versions: null,
 	champions: null,
 	summoners: null
 };
-let staticData;
+let staticCache;
 let realtimeCrawlers = { };
 let sampler;
 let logic;
@@ -44,10 +44,19 @@ let connectDb = function() {
 	console.log("Connecting to DB at " + config.mongoUri);
 
 	return mongodb.MongoClient.connect(config.mongoUri)
-	.then(db => {
+	.then(connection => {
 		console.log("Connected to DB");
+		db = connection;
 
 		return Promise.resolve()
+		.then(() => {
+			return dbUtils.getVersionsCollection({
+				db: db
+			})
+			.then(collection => {
+				collections.versions = collection;
+			});
+		})
 		.then(() => {
 			return dbUtils.getChampionsCollection({
 				db: db
@@ -67,15 +76,16 @@ let connectDb = function() {
 	});
 };
 
-let initStaticData = function() {
+let initStaticCache = function() {
 	return new Promise((resolve, reject) => {
-		staticData = new StaticData({
+		staticCache = new staticData.StaticCache({
+			versionsCollection: collections.versions,
 			championsCollection: collections.champions,
 			apiKey: config.apiKey
 		});
 		resolve();
 	})
-	.then(() => staticData.initialize());
+	.then(() => staticCache.initialize());
 };
 
 let initRealtimeCrawlers = function() {
@@ -131,7 +141,7 @@ let initSampler = function() {
 let initLogic = function() {
 	return new Promise((resolve, reject) => {
 		logic = new gameLogic.Logic({
-			staticData: staticData,
+			staticCache: staticCache,
 			sampler: sampler
 		});
 		resolve();
@@ -147,11 +157,12 @@ let main = function() {
 		resolve();
 	})
 	.then(() => {
-		if(args.setup == 'cache-champions') {
+		if(args.setup == 'cache-data') {
 			return readConfig()
 			.then(connectDb)
 			.then(() => {
-				return setup.cacheChampions({
+				return staticData.cacheData({
+					versionsCollection: collections.versions,
 					championsCollection: collections.champions,
 					apiKey: config.apiKey
 				});
@@ -165,19 +176,17 @@ let main = function() {
 
 			return readConfig()
 			.then(connectDb)
-			.then(initStaticData)
+			.then(initStaticCache)
 			.then(initRealtimeCrawlers)
 			.then(initBackgroundCrawlers)
 			.then(initSampler)
 			.then(initLogic)
 			.then(() => {
-				frontend = new Frontend({
-					host: config.host,
-					port: config.serverPort
-				});
+				frontend = new Frontend({ });
 			})
 			.then(() => {
 				backend = new Backend({
+					staticCache: staticCache,
 					logic: logic,
 					crawlers: realtimeCrawlers
 				});
