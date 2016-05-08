@@ -376,6 +376,7 @@ LobbyState.prototype.display = function() {
 			url: backendUrl + '/backend/lobby/' + self._lobbyId + '/ready',
 			success: function(data) {
 				$(event.currentTarget).attr('disabled', true);
+				$(event.currentTarget).removeClass('btn-default').addClass('btn-success');
 			},
 			error: function(xhr, reason) {
 				loading_dom.detach();
