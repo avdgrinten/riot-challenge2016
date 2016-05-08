@@ -11,6 +11,7 @@ const mongodb = require('mongodb');
 const express = require('express');
 
 const setup = require('./lib/setup.js');
+const dbUtils = require('./lib/db-utils.js');
 const StaticData = require('./lib/static-data.js');
 const crawl = require('./lib/crawl.js');
 const gameLogic = require('./lib/game-logic.js');
@@ -19,7 +20,11 @@ const Frontend = require('./lib/frontend.js');
 const Backend = require('./lib/backend.js');
 
 let config;
-let db;
+let collections = {
+	patches: null,
+	champions: null,
+	summoners: null
+};
 let staticData;
 let realtimeCrawlers = { };
 let sampler;
@@ -39,16 +44,33 @@ let connectDb = function() {
 	console.log("Connecting to DB at " + config.mongoUri);
 
 	return mongodb.MongoClient.connect(config.mongoUri)
-	.then(connected_db => {
+	.then(db => {
 		console.log("Connected to DB");
-		db = connected_db;
+
+		return Promise.resolve()
+		.then(() => {
+			return dbUtils.getChampionsCollection({
+				db: db
+			})
+			.then(collection => {
+				collections.champions = collection;
+			});
+		})
+		.then(() => {
+			return dbUtils.getSummonersCollection({
+				db: db
+			})
+			.then(collection => {
+				collections.summoners = collection;
+			});
+		});
 	});
 };
 
 let initStaticData = function() {
 	return new Promise((resolve, reject) => {
 		staticData = new StaticData({
-			db: db,
+			championsCollection: collections.champions,
 			apiKey: config.apiKey
 		});
 		resolve();
@@ -59,19 +81,16 @@ let initStaticData = function() {
 let initRealtimeCrawlers = function() {
 	let rate = config.realtimeRate || 8;
 
-	return Promise.all(Object.keys(riotApi.platforms).map(platform_id => {
+	return Object.keys(riotApi.platforms).forEach(platform_id => {
 		let crawler = new crawl.RealtimeCrawler({
-			db: db,
+			summonersCollection: collections.summoners,
 			platformId: platform_id,
 			apiKey: config.apiKey,
 			queue: new riotApi.ThrottleQueue(rate, 10)
 		});
 
-		return crawler.initialize()
-		.then(() => {
-			realtimeCrawlers[platform_id] = crawler;
-		});
-	}));
+		realtimeCrawlers[platform_id] = crawler;
+	});
 };
 
 let initBackgroundCrawlers = function() {
@@ -87,7 +106,7 @@ let initBackgroundCrawlers = function() {
 	let crawlers = Object.keys(riotApi.platforms).map(platform_id => {
 		return new crawl.BackgroundCrawler({
 			logger: logger,
-			db: db,
+			summonersCollection: collections.summoners,
 			platformId: platform_id,
 			apiKey: config.apiKey,
 			queue: new riotApi.ThrottleQueue(rate, 10)
@@ -103,11 +122,10 @@ let initBackgroundCrawlers = function() {
 let initSampler = function() {
 	return new Promise((resolve, reject) => {
 		sampler = new crawl.Sampler({
-			db: db
+			summonersCollection: collections.summoners,
 		});
 		resolve();
-	})
-	.then(() => sampler.initialize());
+	});
 };
 
 let initLogic = function() {
@@ -129,37 +147,12 @@ let main = function() {
 		resolve();
 	})
 	.then(() => {
-		if(args.special == 'import-masteries') {
-			return readConfig()
-			.then(connectDb)
-			.then(() => {
-				return crawl.importMasteries(args.platform, args.summoner, {
-					db: db,
-					apiKey: config.apiKey
-				});
-			})
-			.then(() => {
-				console.log("Success");
-				return db.close();
-			});
-		}else if(args.setup == 'create-collections') {
-			return readConfig()
-			.then(connectDb)
-			.then(() => {
-				return setup.createCollections({
-					db: db
-				});
-			})
-			.then(() => {
-				console.log("Created collections");
-				return db.close();
-			});
-		}else if(args.setup == 'cache-champions') {
+		if(args.setup == 'cache-champions') {
 			return readConfig()
 			.then(connectDb)
 			.then(() => {
 				return setup.cacheChampions({
-					db: db,
+					championsCollection: collections.champions,
 					apiKey: config.apiKey
 				});
 			})
