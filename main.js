@@ -21,7 +21,6 @@ let config;
 let db;
 let staticData;
 let realtimeCrawler;
-let backgroundCrawler;
 let logic;
 let frontend;
 let backend;
@@ -68,18 +67,22 @@ let initRealtimeCrawler = function() {
 	.then(() => realtimeCrawler.initialize());
 };
 
-let initBackgroundCrawler = function() {
+let initBackgroundCrawlers = function() {
 	let rate = config.backgroundRate || 2;
-	return new Promise((resolve, reject) => {
-		backgroundCrawler = new crawl.BackgroundCrawler({
+
+	let crawlers = Object.keys(riotApi.platforms).map(platform_id => {
+		return new crawl.BackgroundCrawler({
 			db: db,
+			platformId: platform_id,
 			apiKey: config.apiKey,
 			queue: new riotApi.ThrottleQueue(rate, 10)
 		});
-		resolve();
-	})
-	.then(() => backgroundCrawler.initialize())
-	.then(() => backgroundCrawler.run());
+	});
+
+	return Promise.all(crawlers.map(crawler => crawler.initialize()))
+	.then(() => {
+		return Promise.all(crawlers.map(crawler => crawler.run()));
+	});
 };
 
 let initLogic = function() {
@@ -146,7 +149,7 @@ let main = function() {
 			.then(connectDb)
 			.then(initStaticData)
 			.then(initRealtimeCrawler)
-			.then(initBackgroundCrawler)
+			.then(initBackgroundCrawlers)
 			.then(initLogic)
 			.then(() => {
 				frontend = new Frontend({
