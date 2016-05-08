@@ -74,7 +74,7 @@ let initBackgroundCrawlers = function() {
 	let logger = bunyan.createLogger({
 		name: 'backgroundCrawler',
 		streams: [
-			{ path: 'background-crawler.log' }
+			{ path: 'background-crawler.log', level: 'warn' }
 		]
 	});
 
