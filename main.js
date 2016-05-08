@@ -21,7 +21,8 @@ const Backend = require('./lib/backend.js');
 let config;
 let db;
 let staticData;
-let realtimeCrawler;
+let realtimeCrawlers = { };
+let sampler;
 let logic;
 let frontend;
 let backend;
@@ -55,17 +56,22 @@ let initStaticData = function() {
 	.then(() => staticData.initialize());
 };
 
-let initRealtimeCrawler = function() {
-	return new Promise((resolve, reject) => {
-		let rate = config.realtimeRate || 8;
-		realtimeCrawler = new crawl.RealtimeCrawler({
+let initRealtimeCrawlers = function() {
+	let rate = config.realtimeRate || 8;
+
+	return Promise.all(Object.keys(riotApi.platforms).map(platform_id => {
+		let crawler = new crawl.RealtimeCrawler({
 			db: db,
+			platformId: platform_id,
 			apiKey: config.apiKey,
 			queue: new riotApi.ThrottleQueue(rate, 10)
 		});
-		resolve();
-	})
-	.then(() => realtimeCrawler.initialize());
+
+		return crawler.initialize()
+		.then(() => {
+			realtimeCrawlers[platform_id] = crawler;
+		});
+	}));
 };
 
 let initBackgroundCrawlers = function() {
@@ -94,11 +100,21 @@ let initBackgroundCrawlers = function() {
 	});
 };
 
+let initSampler = function() {
+	return new Promise((resolve, reject) => {
+		sampler = new crawl.Sampler({
+			db: db
+		});
+		resolve();
+	})
+	.then(() => sampler.initialize());
+};
+
 let initLogic = function() {
 	return new Promise((resolve, reject) => {
 		logic = new gameLogic.Logic({
 			staticData: staticData,
-			crawler: realtimeCrawler
+			sampler: sampler
 		});
 		resolve();
 	})
@@ -157,8 +173,9 @@ let main = function() {
 			return readConfig()
 			.then(connectDb)
 			.then(initStaticData)
-			.then(initRealtimeCrawler)
+			.then(initRealtimeCrawlers)
 			.then(initBackgroundCrawlers)
+			.then(initSampler)
 			.then(initLogic)
 			.then(() => {
 				frontend = new Frontend({
@@ -169,7 +186,7 @@ let main = function() {
 			.then(() => {
 				backend = new Backend({
 					logic: logic,
-					crawler: realtimeCrawler
+					crawlers: realtimeCrawlers
 				});
 			})
 			.then(() => {
