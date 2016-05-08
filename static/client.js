@@ -368,6 +368,9 @@ LobbyState.prototype.display = function() {
 	}
 
 	function readyClick(event) {
+		var loading_dom = $.parseHTML(templates['loading-button']());
+		$(event.currentTarget).prepend(loading_dom).attr('disabled', true);
+
 		assertEquals(self._readyRequest, null);
 		self._readyRequest = $.post({
 			url: backendUrl + '/backend/lobby/' + self._lobbyId + '/ready',
@@ -375,6 +378,9 @@ LobbyState.prototype.display = function() {
 				$(event.currentTarget).attr('disabled', true);
 			},
 			error: function(xhr, reason) {
+				loading_dom.detach();
+				$(event.currentTarget).attr('disabled', false);
+
 				if(reason == 'abort')
 					return;
 
