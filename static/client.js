@@ -15,20 +15,56 @@ function displayError(error) {
 	$('#notifications').prepend(dom);
 }
 
-var currentState = null;
 var playSound = false;
+var mainSlot = new StateSlot();
 
-function displayState(state) {
-	if(currentState)
-		currentState.cancel();
-	currentState = state;
-	state.display();
+
+function StateSlot() {
+	this._state = null;
 }
+StateSlot.prototype.enterState = function(state) {
+	if(this._state)
+		this._state.cancel();
+	this._state = state;
+	this._state.display();
+};
+StateSlot.prototype.cancelState = function() {
+	if(this._state)
+		this._state.cancel();
+	this._state = null;
+};
+
+
+function HeaderSummonerState(summoner) {
+	this._summoner = summoner;
+	this._summonerDom = null;
+}
+HeaderSummonerState.prototype.display = function() {
+	function switchSummoner(event) {
+		var dom = $.parseHTML(templates["loading-button"]());
+		$("#button-switch-summoner").prepend(dom);
+		$("#button-switch-summoner").prop("disabled", true);
+
+		mainSlot.enterState(new SwitchSummonerState());
+	};
+
+	this._summonerDom = $.parseHTML(templates["header-summoner"]({
+		myself: this._summoner
+	}));
+	$(this._summonerDom).find("#button-switch-summoner").click(switchSummoner);
+
+	$('.header-summoner').empty().append(this._summonerDom);
+};
+HeaderSummonerState.prototype.cancel = function() {
+	$(this._summonerDom).detach();
+};
 
 
 function HomeState() {
 	this._siteRequest = null;
 	this._playRequest = null;
+
+	this._headerSlot = new StateSlot();
 }
 HomeState.prototype.display = function() {
 	var self = this;
@@ -91,14 +127,6 @@ HomeState.prototype.display = function() {
 		});
 	}
 
-	function switchSummoner(event) {
-		var dom = $.parseHTML(templates["loading-button"]());
-		$("#button-switch-summoner").prepend(dom);
-		$("#button-switch-summoner").prop("disabled", true);
-
-		displayState(new SwitchSummonerState());
-	};
-
 	var dom = $.parseHTML(templates["loading-page"]());
 	$('#content').empty().prepend(dom);
 
@@ -108,7 +136,7 @@ HomeState.prototype.display = function() {
 		dataType: 'json',
 		success: function(data) {
 			var home_dom = $.parseHTML(templates["summoner-home"]({ 
-				myself: data.user,
+				myself: data.summoner,
 				lobbies: data.lobbies.map(function(lobby) {
 					return {
 						id: lobby.id,
@@ -128,21 +156,16 @@ HomeState.prototype.display = function() {
 
 			$('#content').empty().append(home_dom);
 
-			var summoner_dom = $.parseHTML(templates["header-summoner"]({
-				myself: data.user
-			}));
-			$(summoner_dom).find("#button-switch-summoner").click(switchSummoner);
-
-			$('.header-summoner').empty().append(summoner_dom);
+			self._headerSlot.enterState(new HeaderSummonerState(data.summoner));
 		},
 		error: function(xhr, reason) {
 			if(reason == 'abort')
 				return;
 			
 			if(xhr.status == 400 && xhr.responseJSON.error == 'session-required') {
-				displayState(new SelectSummonerState({ }));
+				mainSlot.enterState(new SelectSummonerState({ }));
 			}else if(xhr.status == 403 && xhr.responseJSON.error == 'dead-session') {
-				displayState(new SelectSummonerState({ }));
+				mainSlot.enterState(new SelectSummonerState({ }));
 			}else{
 				displayError({
 					url: "/backend/portal/site",
@@ -161,6 +184,8 @@ HomeState.prototype.cancel = function() {
 		this._siteRequest.abort();
 	if(this._playRequest)
 		this._playRequest.abort();
+
+	this._headerSlot.cancelState();
 };
 
 
@@ -172,6 +197,8 @@ function LobbyState(lobby_id) {
 	this._isAlive = true;
 
 	this._headingDom = null;
+
+	this._headerSlot = new StateSlot();
 
 	this._updateRequest = null;
 	this._siteRequest = null;
@@ -264,7 +291,6 @@ LobbyState.prototype.display = function() {
 			$('#lobby-content').empty().append(dom);
 		}else if(type == 'start-game') {
 		}else if(type == 'join-user') {
-			console.log(data);
 			var dom = $.parseHTML(templates["summoner"]({
 				index: data.index,
 				summoner: data.summoner
@@ -297,7 +323,6 @@ LobbyState.prototype.display = function() {
 			$('.lock-answer[data-champion=' + data.answer.championId + ']').addClass('correct-pick');
 			$('.lock-answer').attr('disabled', true);
 		}else if(type == 'scores'){
-			console.log(data);
 			data.absolute.forEach(function(entry) {
 				$('.summoner[data-index=' + entry.index + '] .score').text(entry.score);
 			});
@@ -414,6 +439,8 @@ LobbyState.prototype.display = function() {
 			}));
 			$('.header-heading').append(self._headingDom);
 
+			self._headerSlot.enterState(new HeaderSummonerState(data.summoner));
+
 			pollUpdates();
 		},
 		error: function(xhr, reason) {
@@ -421,15 +448,15 @@ LobbyState.prototype.display = function() {
 				return;
 			
 			if(xhr.status == 400 && xhr.responseJSON.error == 'session-required') {
-				displayState(new SelectSummonerState({
+				mainSlot.enterState(new SelectSummonerState({
 					returnToLobby: self._lobbyId
 				}));
 			}else if(xhr.status == 403 && xhr.responseJSON.error == 'dead-session') {
-				displayState(new SelectSummonerState({
+				mainSlot.enterState(new SelectSummonerState({
 					returnToLobby: self._lobbyId
 				}));
 			}else if(xhr.status == 403 && xhr.responseJSON.error == 'user-not-in-lobby') {
-				displayState(new JoinLobbyState(self._lobbyId));
+				mainSlot.enterState(new JoinLobbyState(self._lobbyId));
 			}else{
 				displayError({
 					url: "/backend/lobby/{lobbyId}/site",
@@ -455,6 +482,8 @@ LobbyState.prototype.cancel = function() {
 		this._readyRequest.abort();
 	if(this._answerRequest)
 		this._answerRequest.abort();
+
+	this._headerSlot.cancelState();
 };
 
 function JoinLobbyState(lobby_id) {
@@ -470,7 +499,7 @@ JoinLobbyState.prototype.display = function() {
 		url: backendUrl + '/backend/lobby/' + self._lobbyId + '/join',
 		dataType: "json",
 		success: function(data) {
-			displayState(new LobbyState(self._lobbyId));
+			mainSlot.enterState(new LobbyState(self._lobbyId));
 		},
 		error: function(xhr, reason) {
 			if(reason == 'abort')
@@ -522,9 +551,9 @@ SelectSummonerState.prototype.display = function() {
 				localStorage.setItem("summonerName", summoner_name);
 				localStorage.setItem("platform", platform);
 				if(self._follow.returnToLobby) {
-					displayState(new LobbyState(self._follow.returnToLobby));
+					mainSlot.enterState(new LobbyState(self._follow.returnToLobby));
 				}else{
-					displayState(new HomeState());
+					mainSlot.enterState(new HomeState());
 				}
 			},
 			error: function(xhr, reason) {
@@ -576,7 +605,7 @@ SwitchSummonerState.prototype.display = function() {
 	this._switchRequest = $.post({
 		url: backendUrl + '/backend/portal/cancel-session',
 		success: function(data) {
-			displayState(new SelectSummonerState({ }));
+			mainSlot.enterState(new SelectSummonerState({ }));
 		},
 		error: function(xhr, reason) {
 			displayError({
@@ -631,10 +660,10 @@ Router.prototype._testRoute = function(desc, route) {
 
 var router = new Router();
 router.on(/\//, function(desc) {
-	displayState(new HomeState());
+	mainSlot.enterState(new HomeState());
 });
 router.on(/^\/((?:[a-zA-Z0-9+-]{4})+)$/, function(desc) {
-	displayState(new LobbyState(desc.params[0]));
+	mainSlot.enterState(new LobbyState(desc.params[0]));
 });
 
 function navigateTo(url) {
