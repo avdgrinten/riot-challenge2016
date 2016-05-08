@@ -289,7 +289,15 @@ LobbyState.prototype.display = function() {
 			.click(readyClick);
 
 			$('#lobby-content').empty().append(dom);
+		}else if(type == 'set-ready'){
+			var dom = $.parseHTML(templates['checkmark']());
+			$('.summoner[data-index=' + data.index + '] .extensions').append(dom);
 		}else if(type == 'start-game') {
+			$('.summoner').each(function(){
+				$(this).find('.extensions').empty();
+				var score = $.parseHTML(templates['score']());
+				$(this).find('.extensions').append(score);
+			});
 		}else if(type == 'join-user') {
 			var dom = $.parseHTML(templates["summoner"]({
 				index: data.index,
