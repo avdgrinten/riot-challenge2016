@@ -372,6 +372,7 @@ LobbyState.prototype.display = function() {
 		self._readyRequest = $.post({
 			url: backendUrl + '/backend/lobby/' + self._lobbyId + '/ready',
 			success: function(data) {
+				$(event.currentTarget).attr('disabled', true);
 			},
 			error: function(xhr, reason) {
 				if(reason == 'abort')
