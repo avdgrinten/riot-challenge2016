@@ -5,6 +5,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const http = require('http');
+const bunyan = require('bunyan');
 const minimist = require('minimist');
 const mongodb = require('mongodb');
 const express = require('express');
@@ -70,8 +71,16 @@ let initRealtimeCrawler = function() {
 let initBackgroundCrawlers = function() {
 	let rate = config.backgroundRate || 2;
 
+	let logger = bunyan.createLogger({
+		name: 'backgroundCrawler',
+		streams: [
+			{ path: 'background-crawler.log' }
+		]
+	});
+
 	let crawlers = Object.keys(riotApi.platforms).map(platform_id => {
 		return new crawl.BackgroundCrawler({
+			logger: logger,
 			db: db,
 			platformId: platform_id,
 			apiKey: config.apiKey,
