@@ -21,10 +21,16 @@ function displayError(error) {
 
 var mainSlot = new StateSlot();
 
-var playSound = false;
+var audioContext = new AudioContext();
 var backgroundMusic = ["static/sounds/concussive.mp3", "static/sounds/ethereal.mp3", "static/sounds/kinetic.mp3"];
 var backgroundAudio = new Audio();
-var victoryAudio = new Audio("static/sounds/victory.ogg");
+var victoryMusic = "static/sounds/victory.ogg";
+var victoryAudio = new Audio();
+
+var backgroundSource = null;
+var victorySource = null;
+var audioGain = null;
+
 
 function StateSlot() {
 	this._state = null;
@@ -265,14 +271,8 @@ LobbyState.prototype.display = function() {
 		}));
 
 		winners.forEach(function(winner) {
-			if(winner.index == self._ownIndex && playSound) {
-				console.log("victory");
-				backgroundAudio.pause();
-
+			if(winner.index == self._ownIndex) {
 				victoryAudio.play();
-				victoryAudio.onended = function(event) {
-					backgroundAudio.play();
-				};
 			}
 		});
 
@@ -710,13 +710,35 @@ $(document).ready(function() {
 	backendUrl = $('html').data('backendUrl') || baseUrl;
 	
 	backgroundAudio.src = selectRandom(backgroundMusic);
+	victoryAudio.src = victoryMusic;
+	
+	backgroundSource = audioContext.createMediaElementSource(backgroundAudio);
+	victorySource = audioContext.createMediaElementSource(victoryAudio);
+	
+
+	audioGain = audioContext.createGain();
+	backgroundGain = audioContext.createGain();
+	victoryGain = audioContext.createGain();
+
+	backgroundSource.connect(audioGain);
+	victorySource.connect(audioGain);
+
+	audioGain.connect(audioContext.destination);
+
+	audioGain.gain.value = 0;
+	backgroundAudio.volume = 0.1;
+	victoryAudio.volume = 1;
+
 	backgroundAudio.play();
+
 	backgroundAudio.onended = function(event) {
 		backgroundAudio.src = selectRandom(backgroundMusic);
+		backgroundAudio.play();
 	};
 
-	$('#checkbox-sound').change(function(event) {
-		playSound = event.currentTarget.checked;
+
+	$('#range-sound').change(function(event) {
+		audioGain.gain.value = event.currentTarget.value / 100;
 	});
 
 	router.handle();
