@@ -2,6 +2,10 @@
 var baseUrl;
 var backendUrl;
 
+function selectRandom(array) {
+	return array[Math.floor(Math.random() * array.length)];
+}
+
 function assertEquals(a, b) {
 	if(a != b)
 		throw new Error("Assertion failed!");
@@ -15,9 +19,12 @@ function displayError(error) {
 	$('#notifications').prepend(dom);
 }
 
-var playSound = false;
 var mainSlot = new StateSlot();
 
+var playSound = false;
+var backgroundMusic = ["static/sounds/concussive.mp3", "static/sounds/ethereal.mp3", "static/sounds/kinetic.mp3"];
+var backgroundAudio = new Audio();
+var victoryAudio = new Audio("static/sounds/victory.ogg");
 
 function StateSlot() {
 	this._state = null;
@@ -257,16 +264,21 @@ LobbyState.prototype.display = function() {
 			runners: runners
 		}));
 
-		if(winners.index == self._ownIndex && playSound) {
-			var audio = new Audio("http://vignette3.wikia.nocookie.net" +
-					"/leagueoflegends/images/4/46/Female1_OnVictory_1.ogg/" +
-					"revision/latest?cb=20130506193735");
-			audio.play();
-		}
+		winners.forEach(function(winner) {
+			if(winner.index == self._ownIndex && playSound) {
+				console.log("victory");
+				backgroundAudio.pause();
+
+				victoryAudio.play();
+				victoryAudio.onended = function(event) {
+					backgroundAudio.play();
+				};
+			}
+		});
 
 		$(dom).find('#victory-button').click(returnToHome);
 		$('#lobby-content').append(dom);
-	};
+	}
 
 	function displayUpdate(type, data) {
 		if(type == 'arrange-lobby') {
@@ -319,18 +331,18 @@ LobbyState.prototype.display = function() {
 			$(dom).find('.lock-answer').on('click', answerClick);
 			$('#lobby-content').empty().append(dom);
 		}else if(type == 'seconds-left'){
-			if(data.seconds == 0){
+			if(data.seconds == 0) {
 				$('#timer-text').text("Time is up!");
 			}else if(data.seconds == 1) {
 				$('#timer-text').text("1 second left");
-			}else{
+			}else {
 				$('#timer-text').text(data.seconds + " seconds left");
 			}
-		}else if(type == 'correction'){
+		}else if(type == 'correction') {
 			$('.lock-answer[data-champion=' + data.answer.championId + ']').removeClass('locked-pick');
 			$('.lock-answer[data-champion=' + data.answer.championId + ']').addClass('correct-pick');
 			$('.lock-answer').attr('disabled', true);
-		}else if(type == 'scores'){
+		}else if(type == 'scores') {
 			data.absolute.forEach(function(entry) {
 				$('.summoner[data-index=' + entry.index + '] .score').text(entry.score);
 			});
@@ -355,6 +367,7 @@ LobbyState.prototype.display = function() {
 
 			$('.delta-score').append(delta_dom);
 		}else if(type == 'game-complete') {
+			console.log(data.winners);
 			showVictoryScreen(data.winners, data.runners);
 		}else if(type == 'close-lobby') {
 			self._isAlive = false;
@@ -696,6 +709,12 @@ $(document).ready(function() {
 			+ $('html').data('mountPath');
 	backendUrl = $('html').data('backendUrl') || baseUrl;
 	
+	backgroundAudio.src = selectRandom(backgroundMusic);
+	backgroundAudio.play();
+	backgroundAudio.onended = function(event) {
+		backgroundAudio.src = selectRandom(backgroundMusic);
+	};
+
 	$('#checkbox-sound').change(function(event) {
 		playSound = event.currentTarget.checked;
 	});
