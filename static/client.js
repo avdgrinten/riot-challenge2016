@@ -21,16 +21,34 @@ function displayError(error) {
 
 var mainSlot = new StateSlot();
 
-var audioContext = new AudioContext();
-var backgroundMusic = ["static/sounds/concussive.mp3", "static/sounds/ethereal.mp3", "static/sounds/kinetic.mp3"];
-var backgroundAudio = new Audio();
-var victoryMusic = "static/sounds/victory.ogg";
-var victoryAudio = new Audio();
+var audioContext;
+var globalGain;
 
-var backgroundSource = null;
-var victorySource = null;
-var audioGain = null;
+(function() {
+	audioContext = new AudioContext();
 
+	globalGain = audioContext.createGain();
+	globalGain.connect(audioContext.destination);
+	globalGain.gain.value = 0;
+
+	var bg_urls = [
+		"static/sounds/concussive.mp3",
+		"static/sounds/ethereal.mp3",
+		"static/sounds/kinetic.mp3"
+	];
+	
+	var bg_audio = new Audio(selectRandom(bg_urls));
+	audioContext.createMediaElementSource(bg_audio)
+	.connect(globalGain);
+	
+	bg_audio.onended = function(event) {
+		bg_audio.src = selectRandom(bg_urls);
+		bg_audio.play();
+	};
+	
+	bg_audio.volume = 0.4;
+	bg_audio.play();
+})();
 
 function StateSlot() {
 	this._state = null;
@@ -272,7 +290,11 @@ LobbyState.prototype.display = function() {
 
 		winners.forEach(function(winner) {
 			if(winner.index == self._ownIndex) {
-				victoryAudio.play();
+				var victory_audio = new Audio("static/sounds/victory.ogg");
+				audioContext.createMediaElementSource(victory_audio)
+				.connect(globalGain);
+
+				victory_audio.play();
 			}
 		});
 
@@ -709,36 +731,8 @@ $(document).ready(function() {
 			+ $('html').data('mountPath');
 	backendUrl = $('html').data('backendUrl') || baseUrl;
 	
-	backgroundAudio.src = selectRandom(backgroundMusic);
-	victoryAudio.src = victoryMusic;
-	
-	backgroundSource = audioContext.createMediaElementSource(backgroundAudio);
-	victorySource = audioContext.createMediaElementSource(victoryAudio);
-	
-
-	audioGain = audioContext.createGain();
-	backgroundGain = audioContext.createGain();
-	victoryGain = audioContext.createGain();
-
-	backgroundSource.connect(audioGain);
-	victorySource.connect(audioGain);
-
-	audioGain.connect(audioContext.destination);
-
-	audioGain.gain.value = 0;
-	backgroundAudio.volume = 0.1;
-	victoryAudio.volume = 1;
-
-	backgroundAudio.play();
-
-	backgroundAudio.onended = function(event) {
-		backgroundAudio.src = selectRandom(backgroundMusic);
-		backgroundAudio.play();
-	};
-
-
 	$('#range-sound').change(function(event) {
-		audioGain.gain.value = event.currentTarget.value / 100;
+		globalGain.gain.value = event.currentTarget.value / 100;
 	});
 
 	router.handle();
