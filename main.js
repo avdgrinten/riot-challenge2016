@@ -116,6 +116,8 @@ let initBackgroundCrawlers = function() {
 	let crawlers = Object.keys(riotApi.platforms).map(platform_id => {
 		return new crawl.BackgroundCrawler({
 			logger: logger,
+			summonersGoal: config.summonersGoal,
+
 			summonersCollection: collections.summoners,
 			platformId: platform_id,
 			apiKey: config.apiKey,

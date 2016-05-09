@@ -97,16 +97,16 @@ The following programs are required in order to run the server:
 	`sounds/concussive.mp3`,
 	`sounds/countdown.mp3`
 
+* `summonersGoal` limits the number of summoners that are imported to the database.
+	Defaults to 2000.
+
 * `backgroundRate` specifies the rate at which summoners are imported to the database.
 	Defaults to 2. `realtimeRate` is the rate at which realtime (e.g. to validate a summoner name)
 	requests are done to the Riot API. Defaults to 8.
 
 	Note that the defaults are very conservative and are small enough
-	to allow developer API keys to be used. Make sure not not to exceed the
+	to allow developer API keys to be used. Make sure not to exceed the
 	rate limit on your API key when changing these options.
-
-* `summonersGoal` limits the number of summoners that are imported to the database.
-	Defaults to 2000.
 
 ## Design decisions
 
