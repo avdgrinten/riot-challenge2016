@@ -438,12 +438,16 @@ LobbyState.prototype.display = function() {
 			});
 
 			$('#lobby-content').empty().append(dom);
-		}else if(type == 'seconds-left'){
+		}else if(type == 'seconds-left') {
 			if(data.seconds == 0) {
 				$('#timer-text').text("Time is up!");
 			}else if(data.seconds == 1) {
 				$('#timer-text').text("1 second left");
+			}else if(data.seconds <= 5) {
+				$('#timer-text').css('color', 'red');
+				$('#timer-text').text(data.seconds + " seconds left");
 			}else {
+				$('#timer-text').css('color', 'black');
 				$('#timer-text').text(data.seconds + " seconds left");
 			}
 		}else if(type == 'correction') {
