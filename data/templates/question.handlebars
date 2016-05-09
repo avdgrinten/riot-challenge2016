@@ -13,7 +13,7 @@
 	<div class="question-images">
 		{{#each mastered}}
 			<div style="display: inline-block">
-				<img src="http://ddragon.leagueoflegends.com/cdn/6.8.1/img/champion/{{key}}.png" width="80" height="80">
+				<img src={{championImg}} width="80" height="80">
 				<span style="display: block">{{name}}</span>
 			</div>
 		{{/each}}
@@ -24,7 +24,7 @@
 			{{#each choices}}
 				<button type="button" class="btn btn-default lock-answer" data-champion="{{id}}">
 					<div>
-						<img src="http://ddragon.leagueoflegends.com/cdn/6.8.1/img/champion/{{key}}.png" width="80" height="80">
+						<img src={{championImg}} width="80" height="80">
 						<span style="display: block">{{name}}</span>
 					</div>
 				</button>

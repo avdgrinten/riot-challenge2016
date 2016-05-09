@@ -211,7 +211,6 @@ HomeState.prototype.display = function() {
 		url: backendUrl + '/backend/portal/site',
 		dataType: 'json',
 		success: function(data) {
-			console.log(data);
 			var home_dom = $.parseHTML(templates["summoner-home"]({ 
 				myself: data.summoner,
 				lobbies: data.lobbies.map(function(lobby) {
@@ -441,6 +440,7 @@ LobbyState.prototype.display = function() {
 				summoner: data.user
 			};
 		}else if(type == 'round') {
+			console.log(data);
 			self._currentRound = data.round;
 
 			var dom;
