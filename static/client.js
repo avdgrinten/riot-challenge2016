@@ -414,7 +414,6 @@ LobbyState.prototype.display = function() {
 				summoner: data.user
 			};
 		}else if(type == 'round') {
-			console.log(data);
 			self._currentRound = data.round;
 
 			var dom;
