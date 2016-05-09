@@ -370,6 +370,14 @@ LobbyState.prototype.display = function() {
 	}
 
 	function displayUpdate(type, data) {
+		var countdown_audio = new Audio(staticUrl + "/sounds/countdown.ogg");
+		countdown_audio.crossOrigin = 'anonymous';
+
+		audioContext.createMediaElementSource(countdown_audio)
+		.connect(globalGain);
+
+		countdown_audio.volume = 1;
+
 		if(type == 'arrange-lobby') {
 			var dom = $.parseHTML(templates['arrange-lobby']({ 
 				shareUrl: baseUrl + '/' + self._lobbyId
@@ -449,23 +457,17 @@ LobbyState.prototype.display = function() {
 		}else if(type == 'seconds-left') {
 			if(data.seconds == 0) {
 				$('#timer-text').text("Time is up!");
+				countdown_audio.play();
 			}else if(data.seconds == 1) {
 				$('#timer-text').text("1 second left");
+				countdown_audio.play();
 			}else{
-				if(data.seconds == 3) {
-					var audio = new Audio(staticUrl + "/sounds/countdown.ogg");
-					audio.crossOrigin = 'anonymous';
-
-					audioContext.createMediaElementSource(audio)
-					.connect(globalGain);
-
-					audio.volume = 1;
-					audio.play();
+				if(data.seconds <= 3 ) {
+					countdown_audio.play();
 				}else if(data.seconds <= 5) {
 					$('#timer-text').css('color', 'red');
 				}else {
-					$('#timer-text').css('color', 'black');
-					
+					$('#timer-text').css('color', 'black');	
 				}
 				$('#timer-text').text(data.seconds + " seconds left");
 			}
