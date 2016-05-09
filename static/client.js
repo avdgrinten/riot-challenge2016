@@ -19,6 +19,28 @@ function displayError(error) {
 	$('#notifications').prepend(dom);
 }
 
+function changeBackgorund() {
+	var bg_urls = [
+		"static/backgrounds/alistar-olaf.jpg",
+		"static/backgrounds/morgana-ahri.jpg",
+		"static/backgrounds/poolparty1.jpg",
+		"static/backgrounds/poolparty2.jpg",
+		"static/backgrounds/promo.jpg",
+		"static/backgrounds/teambuilder.jpg"
+	];
+
+	var bg = selectRandom(bg_urls);
+	$('body').css('background-image', "url('" + bg + "')");
+}
+
+function playButtonSound() {
+	var audio = new Audio("static/sounds/button-hover.mp3");
+	audioContext.createMediaElementSource(audio)
+	.connect(globalGain);
+	audio.volume = 0.8;
+	audio.play();
+}
+
 var mainSlot = new StateSlot();
 
 var audioContext;
@@ -49,20 +71,6 @@ var globalGain;
 	bg_audio.volume = 0.4;
 	bg_audio.play();
 })();
-
-function changeBackgorund() {
-	var bg_urls = [
-		"static/backgrounds/alistar-olaf.jpg",
-		"static/backgrounds/morgana-ahri.jpg",
-		"static/backgrounds/poolparty1.jpg",
-		"static/backgrounds/poolparty2.jpg",
-		"static/backgrounds/promo.jpg",
-		"static/backgrounds/teambuilder.jpg"
-	];
-
-	var bg = selectRandom(bg_urls);
-	$('body').css('background-image', "url('" + bg + "')");
-}
 
 function StateSlot() {
 	this._state = null;
@@ -97,6 +105,9 @@ HeaderSummonerState.prototype.display = function() {
 		myself: this._summoner
 	}));
 	$(this._summonerDom).find("#button-switch-summoner").click(switchSummoner);
+	$(this._summonerDom).find("#button-switch-summoner").mouseenter(function(event){
+		playButtonSound();
+	});
 
 	$('.header-summoner').empty().append(this._summonerDom);
 };
@@ -191,8 +202,14 @@ HomeState.prototype.display = function() {
 					};
 				})
 			}));
-			$(home_dom).find("#button-solo").click(playSoloClick);
+			$(home_dom).find("#button-solo").click(playSoloClick);	
+			$(home_dom).find("#button-solo").mouseenter(function(event){
+				playButtonSound();
+			});
 			$(home_dom).find("#button-party").click(playPartyClick);
+			$(home_dom).find("#button-party").mouseenter(function(event){
+				playButtonSound();
+			});
 
 			$(home_dom).find("#lobby-list .continue-link").click(function(event){
 				event.preventDefault();
@@ -314,6 +331,9 @@ LobbyState.prototype.display = function() {
 		});
 
 		$(dom).find('#victory-button').click(returnToHome);
+		$(dom).find("#victory-button").mouseenter(function(event){
+			playButtonSound();
+		});
 		$('#lobby-content').append(dom);
 	}
 
@@ -334,8 +354,10 @@ LobbyState.prototype.display = function() {
 				}
 			});
 
-			$(dom).find('#ready-button')
-			.click(readyClick);
+			$(dom).find('#ready-button').click(readyClick);
+			$(dom).find("#ready-button").mouseenter(function(event){
+				playButtonSound();
+			});
 
 			$('#lobby-content').empty().append(dom);
 		}else if(type == 'set-ready'){
@@ -365,7 +387,12 @@ LobbyState.prototype.display = function() {
 				mastered: data.question.mastered,
 				choices: data.question.choices
 			}));
-			$(dom).find('.lock-answer').on('click', answerClick);
+
+			$(dom).find('.lock-answer').click(answerClick);
+			$(dom).find(".lock-answer").mouseenter(function(event){
+				playButtonSound();
+			});
+
 			$('#lobby-content').empty().append(dom);
 		}else if(type == 'seconds-left'){
 			if(data.seconds == 0) {
@@ -650,6 +677,10 @@ SelectSummonerState.prototype.display = function() {
 	$('#content').empty();
 	var dom = $.parseHTML(templates["summoner-select"]());
 	$(dom).find("#submit").submit(summonerSubmit);
+	$(dom).find("#btn-submit").mouseenter(function(event){
+		playButtonSound();
+	});
+
 	if(localStorage.getItem("summonerName") && localStorage.getItem("platform")) {
 		$(dom).find('#input-summoner-name').val(localStorage.getItem("summonerName"));
 		$(dom).find('#select-platform').val(localStorage.getItem("platform"));
