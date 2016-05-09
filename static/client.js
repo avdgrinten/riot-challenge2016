@@ -323,7 +323,9 @@ LobbyState.prototype.display = function() {
 		}
 
 		$('#lobby-content').empty();
+		console.log(staticUrl);
 		var dom = $.parseHTML(templates["victory"]({
+			staticUrl: staticUrl,
 			winners: winners,
 			runners: runners
 		}));
@@ -383,7 +385,9 @@ LobbyState.prototype.display = function() {
 		}else if(type == 'start-game') {
 			$('.summoner').each(function(){
 				$(this).find('.extensions').empty();
-				var score = $.parseHTML(templates['score']());
+				var score = $.parseHTML(templates['score']({
+					staticUrl: staticUrl
+				}));
 				$(this).find('.extensions').append(score);
 			});
 		}else if(type == 'join-user') {
@@ -438,6 +442,7 @@ LobbyState.prototype.display = function() {
 			var delta_dom = $.parseHTML(templates['delta-score']({
 				delta: data.delta.map(function(delta) {
 					return {
+						staticUrl: staticUrl,
 						score: delta.score,
 						displayName: delta.summoner.displayName,
 						profileIcon: delta.summoner.profileIcon

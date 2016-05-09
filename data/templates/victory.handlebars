@@ -6,8 +6,8 @@
 		{{#each winners}}
 			<li class="victory-winner-li">
 				<span>
-					<img src={{icon}} width="40" height="40"> {{summoner.displayName}}
-					<img src="/static/icons/gold-coin.png" class="victory-gold-icon"> {{score}}
+					<img src="{{../staticUrl}}/icons/{{icon}}.png" width="40" height="40"> {{summoner.displayName}}
+					<img src="{{../staticUrl}}/icons/gold-coin.png" class="victory-gold-icon"> {{score}}
 				</span>
 			</li>
 		{{/each}}
@@ -18,8 +18,8 @@
 		{{#each runners}}
 			<li class="victory-runners-li">
 				<span>
-					<img src={{icon}} width="40" height="40"> {{summoner.displayName}}
-					<img src="/static/icons/gold-coin.png" class="victory-gold-icon"> {{score}}
+					<img src="{{../staticUrl}}/icons/{{icon}}.png" width="40" height="40"> {{summoner.displayName}}
+					<img src="{{../staticUrl}}/icons/gold-coin.png" class="victory-gold-icon"> {{score}}
 				</span>
 			</li>
 		{{/each}}
