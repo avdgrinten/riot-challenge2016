@@ -41,7 +41,7 @@ function playButtonSound() {
 	audioContext.createMediaElementSource(audio)
 	.connect(globalGain);
 
-	audio.volume = 0.3;
+	audio.volume = 0.1;
 	audio.play();
 }
 
@@ -423,17 +423,21 @@ LobbyState.prototype.display = function() {
 					round: data.round,
 					numRounds: data.numRounds,
 					mastered: data.question.mastered,
-					choices: data.question.choices,
-					question: "What is his MAIN?"
+					choices: data.question.choices
 				}));
+
+				var question = $.parseHTML(templates['guess-main']());
+				$(dom).find('#question-text').append(question);
 			}else if(data.question.questionType == 'guess-least') {
 				dom = $.parseHTML(templates['question']({
 					round: data.round,
 					numRounds: data.numRounds,
 					mastered: data.question.mastered,
-					choices: data.question.choices,
-					question: "Which champions does he NOT play?"
+					choices: data.question.choices
 				}));
+
+				var question = $.parseHTML(templates['guess-least']());
+				$(dom).find('#question-text').append(question);
 			}
 
 			$(dom).find('.lock-answer').click(answerClick);
