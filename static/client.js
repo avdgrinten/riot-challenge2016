@@ -500,6 +500,7 @@ LobbyState.prototype.display = function() {
 			success: function(data) {
 				$(event.currentTarget).attr('disabled', true);
 				$(event.currentTarget).removeClass('btn-default').addClass('btn-success');
+				$(loading_dom).detach();
 			},
 			error: function(xhr, reason) {
 				loading_dom.detach();
