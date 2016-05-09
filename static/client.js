@@ -447,7 +447,7 @@ LobbyState.prototype.display = function() {
 				$('#timer-text').text("1 second left");
 			}else{
 				if(data.seconds == 3) {
-					var audio = new Audio("static/countdown.ogg");
+					var audio = new Audio(staticUrl + "/sounds/countdown.ogg");
 					audio.crossOrigin = 'anonymous';
 
 					audioContext.createMediaElementSource(audio)
