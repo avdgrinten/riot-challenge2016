@@ -20,6 +20,11 @@
 	<ul id="lobby-list" class="no-padding">
 		{{#each lobbies}}
 		<li><a  data-lobby-id={{id}} class="continue-link" href={{url}}>{{name}}</a></li>
+		<ul class="ingame-summoners-list">
+			{{#each summoners}}
+				<li><img src={{profileIcon}} width="20" height ="20"> {{displayName}}</li>
+			{{/each}}
+		</ul>
 		{{/each}}
 	</ul>
 </div>

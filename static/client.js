@@ -211,13 +211,20 @@ HomeState.prototype.display = function() {
 		url: backendUrl + '/backend/portal/site',
 		dataType: 'json',
 		success: function(data) {
+			console.log(data);
 			var home_dom = $.parseHTML(templates["summoner-home"]({ 
 				myself: data.summoner,
 				lobbies: data.lobbies.map(function(lobby) {
 					return {
 						id: lobby.id,
 						url: baseUrl + '/' + lobby.id,
-						name: lobby.name
+						name: lobby.name,
+						summoners: lobby.summoners.map(function(summoner) {
+							return {
+								displayName: summoner.displayName,
+								profileIcon: summoner.profileIcon
+							}
+						})
 					};
 				})
 			}));

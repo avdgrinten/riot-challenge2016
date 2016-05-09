@@ -270,3 +270,7 @@ footer {
 	text-align: center;
 	font-size: 125%;
 }
+
+.ingame-summoners-list {
+	list-style: none;
+}
