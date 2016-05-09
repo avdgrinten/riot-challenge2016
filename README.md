@@ -1,6 +1,52 @@
 
 # riot-challenge2016
 
+## Running the application
+
+### Live version
+
+### Prerequisites
+
+The following programs are required in order to run the server:
+
+* node.js. A recent version is required to run the code.
+	We tested the server using version 6.1.0.
+
+* A MongoDB instance. Here a recent version is required too.
+	We tested using version 3.2.6.
+
+### Quick start
+
+1. Clone this repository from github
+
+2. Download dependencies via `npm install`
+
+3. Create a `config.json` file containing the following contents:
+
+	```
+	{
+		"serverPort": 8080,
+
+		"frontend": {
+			"staticUrl": "https://s3.amazonaws.com/guess-my-main"
+		},
+
+		"mongoUri": <URI of the MongoDB database, e.g. "mongodb://localhost:27017/guess-my-main">,
+		"apiKey": <Your Riot API key>
+	}
+	```
+
+4. Import static data from the Riot API by running `node main.js --setup cache-data`.
+	This command caches League champion and version date in the local database.
+
+5. Run the server using `node main.js`. The server has to collect
+	some data when it is started for the first time.
+	It should display a `Server running on port: 8080` line after 1 - 3 minutes.
+
+6. Visit `http://localhost:8080` to play the game!
+
+### Configuration options
+
 ## Design decisions
 
 * Use summoner names instead of seperate logins
