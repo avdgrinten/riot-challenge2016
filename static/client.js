@@ -37,11 +37,14 @@ function changeBackgorund() {
 function playButtonSound() {
 	var audio = new Audio(staticUrl + "/sounds/button-hover.mp3");
 	audio.crossOrigin = 'anonymous';
+	
+	var local_gain = audioContext.createGain();
+	local_gain.gain.value = 0.25;
+	local_gain.connect(globalGain);
 
 	audioContext.createMediaElementSource(audio)
-	.connect(globalGain);
+	.connect(local_gain);
 
-	audio.volume = 0.1;
 	audio.play();
 }
 
@@ -68,15 +71,19 @@ function setupAudio() {
 		
 		var bg_audio = new Audio(selectRandom(bg_urls));
 		bg_audio.crossOrigin = 'anonymous';
+	
+		var local_gain = audioContext.createGain();
+		local_gain.gain.value = 0.1;
+		local_gain.connect(globalGain);
+
 		audioContext.createMediaElementSource(bg_audio)
-		.connect(globalGain);
+		.connect(local_gain);
 		
 		bg_audio.onended = function(event) {
 			bg_audio.src = selectRandom(bg_urls);
 			bg_audio.play();
 		};
 		
-		bg_audio.volume = 0.1;
 		bg_audio.play();
 	}
 };
@@ -334,11 +341,14 @@ LobbyState.prototype.display = function() {
 			if(winner.index == self._ownIndex) {
 				var victory_audio = new Audio(staticUrl + "/sounds/victory.ogg");
 				victory_audio.crossOrigin = 'anonymous';
+	
+				var local_gain = audioContext.createGain();
+				local_gain.gain.value = 0.8;
+				local_gain.connect(local_gain);
 
 				audioContext.createMediaElementSource(victory_audio)
-				.connect(globalGain);
+				.connect(local_gain);
 
-				victory_audio.volume = 0.8;
 				victory_audio.play();
 			}
 		});
@@ -347,10 +357,13 @@ LobbyState.prototype.display = function() {
 				var defeat_audio = new Audio(staticUrl + "/sounds/defeat.ogg");
 				defeat_audio.crossOrigin = 'anonymous';
 
-				audioContext.createMediaElementSource(defeat_audio)
-				.connect(globalGain);
+				var local_gain = audioContext.createGain();
+				local_gain.gain.value = 0.8;
+				local_gain.connect(globalGain);
 
-				defeat_audio.volume = 0.8;
+				audioContext.createMediaElementSource(defeat_audio)
+				.connect(local_gain);
+
 				defeat_audio.play();
 			}
 		});
@@ -372,11 +385,13 @@ LobbyState.prototype.display = function() {
 	function displayUpdate(type, data) {
 		var countdown_audio = new Audio(staticUrl + "/sounds/countdown.ogg");
 		countdown_audio.crossOrigin = 'anonymous';
+	
+		var local_gain = audioContext.createGain();
+		local_gain.gain.value = 1.0;
+		local_gain.connect(globalGain);
 
 		audioContext.createMediaElementSource(countdown_audio)
-		.connect(globalGain);
-
-		countdown_audio.volume = 1;
+		.connect(local_gain);
 
 		if(type == 'arrange-lobby') {
 			var dom = $.parseHTML(templates['arrange-lobby']({ 
@@ -566,11 +581,14 @@ LobbyState.prototype.display = function() {
 
 				var audio = new Audio(staticUrl + "/sounds/lock-champion.mp3");
 				audio.crossOrigin = 'anonymous';
+	
+				var local_gain = audioContext.createGain();
+				local_gain.gain.value = 0.4;
+				local_gain.connect(globalGain);
 
 				audioContext.createMediaElementSource(audio)
-				.connect(globalGain);
+				.connect(local_gain);
 
-				audio.volume = 0.4;
 				audio.play();
 
 				$(loading_dom).detach();
