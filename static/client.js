@@ -237,9 +237,10 @@ HomeState.prototype.display = function() {
 			$(home_dom).find("#button-party").mouseenter(hoverSoundHandler);
 
 			$(home_dom).find("#lobby-list .continue-link").click(function(event){
-				event.preventDefault();
-
-				navigateTo("/" + $(event.currentTarget).data('lobbyId'));
+				if(event.which == 1) {
+					event.preventDefault();
+					navigateTo("/" + $(event.currentTarget).data('lobbyId'));
+				}
 			});
 
 			$('#content').empty().append(home_dom);
@@ -849,8 +850,10 @@ $(document).ready(function() {
 	});
 
 	$('#header-link').click(function(event){
-		event.preventDefault();
-		navigateTo('/');
+		if(event.which == 1) {
+			event.preventDefault();
+			navigateTo('/');
+		}
 	});
 
 	router.handle();
