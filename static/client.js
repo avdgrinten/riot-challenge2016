@@ -1,5 +1,6 @@
 
 var baseUrl;
+var staticUrl;
 var backendUrl;
 
 function selectRandom(array) {
@@ -21,12 +22,12 @@ function displayError(error) {
 
 function changeBackgorund() {
 	var bg_urls = [
-		"static/backgrounds/alistar-olaf.jpg",
-		"static/backgrounds/morgana-ahri.jpg",
-		"static/backgrounds/poolparty1.jpg",
-		"static/backgrounds/poolparty2.jpg",
-		"static/backgrounds/promo.jpg",
-		"static/backgrounds/teambuilder.jpg"
+		staticUrl + "/backgrounds/alistar-olaf.jpg",
+		staticUrl + "/backgrounds/morgana-ahri.jpg",
+		staticUrl + "/backgrounds/poolparty1.jpg",
+		staticUrl + "/backgrounds/poolparty2.jpg",
+		staticUrl + "/backgrounds/promo.jpg",
+		staticUrl + "/backgrounds/teambuilder.jpg"
 	];
 
 	var bg = selectRandom(bg_urls);
@@ -34,9 +35,12 @@ function changeBackgorund() {
 }
 
 function playButtonSound() {
-	var audio = new Audio("static/sounds/button-hover.mp3");
+	var audio = new Audio(staticUrl + "/sounds/button-hover.mp3");
+	audio.crossOrigin = 'anonymous';
+
 	audioContext.createMediaElementSource(audio)
 	.connect(globalGain);
+
 	audio.volume = 0.8;
 	audio.play();
 }
@@ -57,12 +61,13 @@ function setupAudio() {
 		globalGain.gain.value = 0;
 
 		var bg_urls = [
-			"static/sounds/concussive.mp3",
-			"static/sounds/ethereal.mp3",
-			"static/sounds/kinetic.mp3"
+			staticUrl + "/sounds/concussive.mp3",
+			staticUrl + "/sounds/ethereal.mp3",
+			staticUrl + "/sounds/kinetic.mp3"
 		];
 		
 		var bg_audio = new Audio(selectRandom(bg_urls));
+		bg_audio.crossOrigin = 'anonymous';
 		audioContext.createMediaElementSource(bg_audio)
 		.connect(globalGain);
 		
@@ -325,7 +330,9 @@ LobbyState.prototype.display = function() {
 
 		winners.forEach(function(winner) {
 			if(winner.index == self._ownIndex) {
-				var victory_audio = new Audio("static/sounds/victory.ogg");
+				var victory_audio = new Audio(staticUrl + "/sounds/victory.ogg");
+				victory_audio.crossOrigin = 'anonymous';
+
 				audioContext.createMediaElementSource(victory_audio)
 				.connect(globalGain);
 
@@ -502,9 +509,12 @@ LobbyState.prototype.display = function() {
 			success: function(data) {
 				$(event.currentTarget).animate({ backgroundColor: "#FDE74C" }, "slow");
 
-				var audio = new Audio("static/sounds/lock-champion.mp3");
+				var audio = new Audio(staticUrl + "/sounds/lock-champion.mp3");
+				audio.crossOrigin = 'anonymous';
+
 				audioContext.createMediaElementSource(audio)
 				.connect(globalGain);
+
 				audio.volume = 0.4;
 				audio.play();
 
@@ -793,6 +803,7 @@ window.onpopstate = function(event) {
 $(document).ready(function() {
 	baseUrl = window.location.protocol + '//' + window.location.host
 			+ $('html').data('mountPath');
+	staticUrl = $('html').data('staticUrl') || baseUrl + '/static';
 	backendUrl = $('html').data('backendUrl') || baseUrl;
 	
 	setupAudio();

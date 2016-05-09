@@ -182,7 +182,9 @@ let main = function() {
 			.then(initSampler)
 			.then(initLogic)
 			.then(() => {
-				frontend = new Frontend({ });
+				frontend = new Frontend({
+					staticUrl: config.frontend && config.frontend.staticUrl
+				});
 			})
 			.then(() => {
 				backend = new Backend({
