@@ -191,7 +191,6 @@ HomeState.prototype.display = function() {
 		url: backendUrl + '/backend/portal/site',
 		dataType: 'json',
 		success: function(data) {
-			console.log(data);
 			var home_dom = $.parseHTML(templates["summoner-home"]({ 
 				myself: data.summoner,
 				lobbies: data.lobbies.map(function(lobby) {
@@ -335,6 +334,13 @@ LobbyState.prototype.display = function() {
 			playButtonSound();
 		});
 		$('#lobby-content').append(dom);
+
+		$('.victory-winner-li').animate({ 
+			left: $('#winner-list').width() / 2 - $('.victory-winner-li span').width() / 2
+		});
+		$('.victory-runners-li').animate({ 
+			left: $('#runners-list').width() / 2 - $('.victory-runners-li span').width() / 2
+		});
 	}
 
 	function displayUpdate(type, data) {
@@ -429,8 +435,10 @@ LobbyState.prototype.display = function() {
 			}));
 
 			$('.delta-score').append(delta_dom);
+			$('.delta-score-li').animate({ 
+				left: $('#delta-score-list').width() / 2 - $('.delta-score-li span').width() / 2
+			});
 		}else if(type == 'game-complete') {
-			console.log(data.winners);
 			showVictoryScreen(data.winners, data.runners);
 		}else if(type == 'close-lobby') {
 			self._isAlive = false;

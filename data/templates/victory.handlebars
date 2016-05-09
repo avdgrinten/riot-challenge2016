@@ -4,9 +4,11 @@
 		<h3>Congratulations to:</h3>
 		<ul id="winner-list">
 		{{#each winners}}
-			<li>
-				<img src={{icon}} width="40" height="40"> {{summoner.displayName}}
-				<img src="/static/icons/gold-coin.png" class="victory-gold-icon"> {{score}}
+			<li class="victory-winner-li">
+				<span>
+					<img src={{icon}} width="40" height="40"> {{summoner.displayName}}
+					<img src="/static/icons/gold-coin.png" class="victory-gold-icon"> {{score}}
+				</span>
 			</li>
 		{{/each}}
 		</ul>
@@ -14,9 +16,11 @@
 		<h3>Runners-up:</h3>
 		<ul id="runners-list">
 		{{#each runners}}
-			<li>
-				<img src={{icon}} width="40" height="40"> {{summoner.displayName}}
-				<img src="/static/icons/gold-coin.png" class="victory-gold-icon"> {{score}}
+			<li class="victory-runners-li">
+				<span>
+					<img src={{icon}} width="40" height="40"> {{summoner.displayName}}
+					<img src="/static/icons/gold-coin.png" class="victory-gold-icon"> {{score}}
+				</span>
 			</li>
 		{{/each}}
 		</ul>

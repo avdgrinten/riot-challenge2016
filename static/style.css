@@ -229,13 +229,23 @@ footer {
 }
 
 #winner-list > li,
-#runners-list > li
+#runners-list > li,
 #delta-score-list > li {
 	margin-bottom: 5px;
 }
 
 .delta-score {
 	margin-top: 30px;
-	text-align: center;
-	vertical-align: center;
+	vertical-align: middle;
+}
+
+.delta-score-li,
+.victory-winner-li,
+.victory-runners-li {
+	position: relative;
+}
+
+#winner-list,
+#runners-list {
+	text-align: left;
 }
