@@ -50,6 +50,20 @@ var globalGain;
 	bg_audio.play();
 })();
 
+function changeBackgorund() {
+	var bg_urls = [
+		"static/backgrounds/alistar-olaf.jpg",
+		"static/backgrounds/morgana-ahri.jpg",
+		"static/backgrounds/poolparty1.jpg",
+		"static/backgrounds/poolparty2.jpg",
+		"static/backgrounds/promo.jpg",
+		"static/backgrounds/teambuilder.jpg"
+	];
+
+	var bg = selectRandom(bg_urls);
+	$('body').css('background-image', "url('" + bg + "')");
+}
+
 function StateSlot() {
 	this._state = null;
 }
@@ -166,6 +180,7 @@ HomeState.prototype.display = function() {
 		url: backendUrl + '/backend/portal/site',
 		dataType: 'json',
 		success: function(data) {
+			console.log(data);
 			var home_dom = $.parseHTML(templates["summoner-home"]({ 
 				myself: data.summoner,
 				lobbies: data.lobbies.map(function(lobby) {
@@ -731,7 +746,9 @@ $(document).ready(function() {
 			+ $('html').data('mountPath');
 	backendUrl = $('html').data('backendUrl') || baseUrl;
 	
-	$('#range-sound').change(function(event) {
+	changeBackgorund();
+
+	$('#range-sound').on('input', function(event) {
 		globalGain.gain.value = event.currentTarget.value / 100;
 	});
 
