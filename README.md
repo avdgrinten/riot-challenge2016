@@ -1,6 +1,63 @@
 
 # riot-challenge2016
 
+## Design decisions
+
+* Use summoner names instead of seperate logins
+
+	We decided to use League of Legends summoners names instead
+	of a seperate name or login system. A disadvantage of this idea
+	is that we cannot validate if a summoner name truely belongs
+	to the person using it.
+	However that should not be a problem because we use the
+	summoner name only for display purposes. We do not store any
+	data attached to a summoner name.
+
+* Share URLs to play together
+
+	Were using shareable URLs to connect different players.
+	This avoids the overhead and clunkiness of a seperate
+	search-lobby system.
+
+## Technical discussion
+
+### Components
+
+* Static files (server)
+
+	This component simply serves static files. For optimal performance
+	those files should be hosted on a CDN.
+
+* Frontend (server)
+
+	The frontend serves all URLs that are visible to the user.
+	This includes the root URL / that serves the home page
+	as well as the /{lobbyId} URL that serves an individual lobby or game screen.
+	Additionally it serves some JavaScript and CSS files.
+
+	The frontend only serves GET requests. While some of the served files are dynamically
+	generated they can all be cached.
+	For optimal performance the frontend should be run behind a caching reverse proxy.
+
+	The frontend is completely stateless. It does not access the database
+	or game logic. This way multiple frontend servers could be used
+	to satisfy large numbers of requests (e.g. to survive a reddit hug of death).
+
+* Backend (server)
+
+	The backend is where all the game logic happens. The backend provides a RESTful
+	API at /backend that is used by the client side in order to query
+	or manipulate the current game state.
+
+	This is the only stateful server-side component. The backend is connected to a database
+	that caches data from Riot's API and stores some internal state.
+
+* Client
+
+	The client is basically a large JavaScript application that
+	connects to the backend, retrieves data about the current game
+	state and displays this data to the user via HTML/CSS.
+
 ### Implementation notes
 
 * Long polling via XHR
