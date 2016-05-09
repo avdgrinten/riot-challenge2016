@@ -350,12 +350,12 @@ LobbyState.prototype.display = function() {
 
 		winners.forEach(function(winner) {
 			if(winner.index == self._ownIndex) {
-				playSound("/sounds/victory.ogg", 0.8);
+				playSound("/sounds/victory.mp3", 0.8);
 			}
 		});
 		runners.forEach(function(runner) {
 			if(runner.index == self._ownIndex) {
-				playSound("/sounds/defeat.ogg", 0.8);
+				playSound("/sounds/defeat.mp3", 0.8);
 			}
 		});
 
@@ -447,13 +447,13 @@ LobbyState.prototype.display = function() {
 		}else if(type == 'seconds-left') {
 			if(data.seconds == 0) {
 				$('#timer-text').text("Time is up!");
-				playSound("/sounds/countdown.ogg", 1.0);
+				playSound("/sounds/countdown.mp3", 1.0);
 			}else if(data.seconds == 1) {
 				$('#timer-text').text("1 second left");
-				playSound("/sounds/countdown.ogg", 1.0);
+				playSound("/sounds/countdown.mp3", 1.0);
 			}else{
 				if(data.seconds <= 3 ) {
-				playSound("/sounds/countdown.ogg", 1.0);
+				playSound("/sounds/countdown.mp3", 1.0);
 				}else if(data.seconds <= 5) {
 					$('#timer-text').css('color', 'red');
 				}else {
