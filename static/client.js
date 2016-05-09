@@ -497,6 +497,13 @@ LobbyState.prototype.display = function() {
 			contentType: 'application/json',
 			success: function(data) {
 				$(event.currentTarget).animate({ backgroundColor: "#FDE74C" }, "slow");
+
+				var audio = new Audio("static/sounds/lock-champion.mp3");
+				audioContext.createMediaElementSource(audio)
+				.connect(globalGain);
+				audio.volume = 0.4;
+				audio.play();
+
 				$(loading_dom).detach();
 			},
 			error: function(xhr, reason) {
