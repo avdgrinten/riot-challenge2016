@@ -46,10 +46,10 @@ var mainSlot = new StateSlot();
 var audioContext;
 var globalGain;
 
-(function() {
+function setupAudio() {
 	var AudioContext = window.AudioContext 	|| window.webkitAudioContext || false;
 	if(!AudioContext) {
-		return;
+		$('.header-sound').empty();
 	}else{
 		audioContext = new AudioContext;
 		globalGain = audioContext.createGain();
@@ -74,7 +74,7 @@ var globalGain;
 		bg_audio.volume = 0.2;
 		bg_audio.play();
 	}
-})();
+};
 
 function StateSlot() {
 	this._state = null;
@@ -795,6 +795,7 @@ $(document).ready(function() {
 			+ $('html').data('mountPath');
 	backendUrl = $('html').data('backendUrl') || baseUrl;
 	
+	setupAudio();
 	changeBackgorund();
 
 	$('#range-sound').on('input', function(event) {

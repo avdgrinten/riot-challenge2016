@@ -215,9 +215,11 @@ footer {
 }
 
 .header-sound {
+	text-align: center;
 	float: right;
-	margin-top: 22px;
+	padding-top: 25px;
 	margin-left: 10px;
+	margin-bottom: 10px;
 }
 
 .victory-button {
@@ -248,4 +250,8 @@ footer {
 #winner-list,
 #runners-list {
 	text-align: left;
+}
+
+.header-label-sound {
+	display: flex;
 }
