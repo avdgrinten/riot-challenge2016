@@ -53,6 +53,23 @@ function setupAudio() {
 	}
 }
 
+function playSound(url, volume) {
+	if(!audioContext)
+		return;
+
+	var audio = new Audio(staticUrl + url);
+	audio.crossOrigin = 'anonymous';
+	
+	var local_gain = audioContext.createGain();
+	local_gain.gain.value = volume;
+	local_gain.connect(globalGain);
+
+	audioContext.createMediaElementSource(audio)
+	.connect(local_gain);
+
+	audio.play();
+}
+
 function playBackgroundMusic() {
 	var bg_urls = [
 		staticUrl + "/sounds/concussive.mp3",
@@ -78,20 +95,7 @@ function playBackgroundMusic() {
 }
 
 function hoverSoundHandler(event) {
-	if(!audioContext)
-		return;
-
-	var audio = new Audio(staticUrl + "/sounds/button-hover.mp3");
-	audio.crossOrigin = 'anonymous';
-	
-	var local_gain = audioContext.createGain();
-	local_gain.gain.value = 0.25;
-	local_gain.connect(globalGain);
-
-	audioContext.createMediaElementSource(audio)
-	.connect(local_gain);
-
-	audio.play();
+	playSound("/sounds/button-hover.mp3", 0.25);
 }
 
 function StateSlot() {
@@ -345,32 +349,12 @@ LobbyState.prototype.display = function() {
 
 		winners.forEach(function(winner) {
 			if(winner.index == self._ownIndex) {
-				var victory_audio = new Audio(staticUrl + "/sounds/victory.ogg");
-				victory_audio.crossOrigin = 'anonymous';
-	
-				var local_gain = audioContext.createGain();
-				local_gain.gain.value = 0.8;
-				local_gain.connect(local_gain);
-
-				audioContext.createMediaElementSource(victory_audio)
-				.connect(local_gain);
-
-				victory_audio.play();
+				playSound("/sounds/victory.ogg", 0.8);
 			}
 		});
 		runners.forEach(function(runner) {
 			if(runner.index == self._ownIndex) {
-				var defeat_audio = new Audio(staticUrl + "/sounds/defeat.ogg");
-				defeat_audio.crossOrigin = 'anonymous';
-
-				var local_gain = audioContext.createGain();
-				local_gain.gain.value = 0.8;
-				local_gain.connect(globalGain);
-
-				audioContext.createMediaElementSource(defeat_audio)
-				.connect(local_gain);
-
-				defeat_audio.play();
+				playSound("/sounds/defeat.ogg", 0.8);
 			}
 		});
 
@@ -387,16 +371,6 @@ LobbyState.prototype.display = function() {
 	}
 
 	function displayUpdate(type, data) {
-		var countdown_audio = new Audio(staticUrl + "/sounds/countdown.ogg");
-		countdown_audio.crossOrigin = 'anonymous';
-	
-		var local_gain = audioContext.createGain();
-		local_gain.gain.value = 1.0;
-		local_gain.connect(globalGain);
-
-		audioContext.createMediaElementSource(countdown_audio)
-		.connect(local_gain);
-
 		if(type == 'arrange-lobby') {
 			var dom = $.parseHTML(templates['arrange-lobby']({ 
 				shareUrl: baseUrl + '/' + self._lobbyId
@@ -473,13 +447,13 @@ LobbyState.prototype.display = function() {
 		}else if(type == 'seconds-left') {
 			if(data.seconds == 0) {
 				$('#timer-text').text("Time is up!");
-				countdown_audio.play();
+				playSound("/sounds/countdown.ogg", 1.0);
 			}else if(data.seconds == 1) {
 				$('#timer-text').text("1 second left");
-				countdown_audio.play();
+				playSound("/sounds/countdown.ogg", 1.0);
 			}else{
 				if(data.seconds <= 3 ) {
-					countdown_audio.play();
+				playSound("/sounds/countdown.ogg", 1.0);
 				}else if(data.seconds <= 5) {
 					$('#timer-text').css('color', 'red');
 				}else {
@@ -580,17 +554,7 @@ LobbyState.prototype.display = function() {
 			success: function(data) {
 				$(event.currentTarget).animate({ backgroundColor: "#FDE74C" }, "slow");
 
-				var audio = new Audio(staticUrl + "/sounds/lock-champion.mp3");
-				audio.crossOrigin = 'anonymous';
-	
-				var local_gain = audioContext.createGain();
-				local_gain.gain.value = 0.4;
-				local_gain.connect(globalGain);
-
-				audioContext.createMediaElementSource(audio)
-				.connect(local_gain);
-
-				audio.play();
+				playSound("/sounds/lock-champion.mp3", 0.4);
 
 				$(loading_dom).detach();
 			},
