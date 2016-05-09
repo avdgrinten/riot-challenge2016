@@ -34,20 +34,6 @@ function changeBackgorund() {
 	$('body').css('background-image', "url('" + bg + "')");
 }
 
-function playButtonSound() {
-	var audio = new Audio(staticUrl + "/sounds/button-hover.mp3");
-	audio.crossOrigin = 'anonymous';
-	
-	var local_gain = audioContext.createGain();
-	local_gain.gain.value = 0.25;
-	local_gain.connect(globalGain);
-
-	audioContext.createMediaElementSource(audio)
-	.connect(local_gain);
-
-	audio.play();
-}
-
 var mainSlot = new StateSlot();
 
 var audioContext;
@@ -63,30 +49,50 @@ function setupAudio() {
 		globalGain.connect(audioContext.destination);
 		globalGain.gain.value = 0;
 
-		var bg_urls = [
-			staticUrl + "/sounds/concussive.mp3",
-			staticUrl + "/sounds/ethereal.mp3",
-			staticUrl + "/sounds/kinetic.mp3"
-		];
-		
-		var bg_audio = new Audio(selectRandom(bg_urls));
-		bg_audio.crossOrigin = 'anonymous';
-	
-		var local_gain = audioContext.createGain();
-		local_gain.gain.value = 0.1;
-		local_gain.connect(globalGain);
-
-		audioContext.createMediaElementSource(bg_audio)
-		.connect(local_gain);
-		
-		bg_audio.onended = function(event) {
-			bg_audio.src = selectRandom(bg_urls);
-			bg_audio.play();
-		};
-		
-		bg_audio.play();
+		playBackgroundMusic();
 	}
-};
+}
+
+function playBackgroundMusic() {
+	var bg_urls = [
+		staticUrl + "/sounds/concussive.mp3",
+		staticUrl + "/sounds/ethereal.mp3",
+		staticUrl + "/sounds/kinetic.mp3"
+	];
+
+	var bg_audio = new Audio(selectRandom(bg_urls));
+	bg_audio.crossOrigin = 'anonymous';
+
+	var local_gain = audioContext.createGain();
+	local_gain.gain.value = 0.1;
+	local_gain.connect(globalGain);
+
+	audioContext.createMediaElementSource(bg_audio)
+	.connect(local_gain);
+	
+	bg_audio.onended = function(event) {
+		playBackgroundMusic()
+	};
+	
+	bg_audio.play();
+}
+
+function hoverSoundHandler(event) {
+	if(!audioContext)
+		return;
+
+	var audio = new Audio(staticUrl + "/sounds/button-hover.mp3");
+	audio.crossOrigin = 'anonymous';
+	
+	var local_gain = audioContext.createGain();
+	local_gain.gain.value = 0.25;
+	local_gain.connect(globalGain);
+
+	audioContext.createMediaElementSource(audio)
+	.connect(local_gain);
+
+	audio.play();
+}
 
 function StateSlot() {
 	this._state = null;
@@ -121,9 +127,7 @@ HeaderSummonerState.prototype.display = function() {
 		myself: this._summoner
 	}));
 	$(this._summonerDom).find("#button-switch-summoner").click(switchSummoner);
-	$(this._summonerDom).find("#button-switch-summoner").mouseenter(function(event){
-		playButtonSound();
-	});
+	$(this._summonerDom).find("#button-switch-summoner").mouseenter(hoverSoundHandler);
 
 	$('.header-summoner').empty().append(this._summonerDom);
 };
@@ -218,13 +222,9 @@ HomeState.prototype.display = function() {
 				})
 			}));
 			$(home_dom).find("#button-solo").click(playSoloClick);	
-			$(home_dom).find("#button-solo").mouseenter(function(event){
-				playButtonSound();
-			});
+			$(home_dom).find("#button-solo").mouseenter(hoverSoundHandler);
 			$(home_dom).find("#button-party").click(playPartyClick);
-			$(home_dom).find("#button-party").mouseenter(function(event){
-				playButtonSound();
-			});
+			$(home_dom).find("#button-party").mouseenter(hoverSoundHandler);
 
 			$(home_dom).find("#lobby-list .continue-link").click(function(event){
 				event.preventDefault();
@@ -369,9 +369,7 @@ LobbyState.prototype.display = function() {
 		});
 
 		$(dom).find('#victory-button').click(returnToHome);
-		$(dom).find("#victory-button").mouseenter(function(event){
-			playButtonSound();
-		});
+		$(dom).find("#victory-button").mouseenter(hoverSoundHandler);
 		$('#lobby-content').append(dom);
 
 		$('.victory-winner-li').animate({ 
@@ -410,9 +408,7 @@ LobbyState.prototype.display = function() {
 			});
 
 			$(dom).find('#ready-button').click(readyClick);
-			$(dom).find("#ready-button").mouseenter(function(event){
-				playButtonSound();
-			});
+			$(dom).find("#ready-button").mouseenter(hoverSoundHandler);
 
 			$('#lobby-content').empty().append(dom);
 		}else if(type == 'set-ready'){
@@ -464,9 +460,7 @@ LobbyState.prototype.display = function() {
 			}
 
 			$(dom).find('.lock-answer').click(answerClick);
-			$(dom).find(".lock-answer").mouseenter(function(event){
-				playButtonSound();
-			});
+			$(dom).find(".lock-answer").mouseenter(hoverSoundHandler);
 
 			$('#lobby-content').empty().append(dom);
 		}else if(type == 'seconds-left') {
@@ -778,9 +772,7 @@ SelectSummonerState.prototype.display = function() {
 	$('#content').empty();
 	var dom = $.parseHTML(templates["summoner-select"]());
 	$(dom).find("#submit").submit(summonerSubmit);
-	$(dom).find("#btn-submit").mouseenter(function(event){
-		playButtonSound();
-	});
+	$(dom).find("#btn-submit").mouseenter(hoverSoundHandler);
 
 	if(localStorage.getItem("summonerName") && localStorage.getItem("platform")) {
 		$(dom).find('#input-summoner-name').val(localStorage.getItem("summonerName"));
