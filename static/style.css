@@ -175,20 +175,6 @@ footer {
 	margin-bottom: 10px;
 }
 
-.question-text,
-.home-text-heading,
-.input-text-heading {
-	padding: 10px;
-	text-align: center;
-	font-size: 2em;
-}
-
-.input-text,
-.lobby-text,
-.home-text {
-	font-size: 125%;
-	text-align: center;
-}
 
 .lobby-link {
 	text-align: center;
@@ -273,4 +259,14 @@ footer {
 
 .input-group {
 	margin-top: 20px;
+}
+
+#content h2 {
+	text-align: center;
+}
+
+.text {
+	padding: 10px;
+	text-align: center;
+	font-size: 125%;
 }
