@@ -340,6 +340,17 @@ LobbyState.prototype.display = function() {
 				victory_audio.play();
 			}
 		});
+		runners.forEach(function(runner) {
+			if(runner.index == self._ownIndex) {
+				var defeat_audio = new Audio(staticUrl + "/sounds/defeat.ogg");
+				defeat_audio.crossOrigin = 'anonymous';
+
+				audioContext.createMediaElementSource(defeat_audio)
+				.connect(globalGain);
+
+				defeat_audio.play();
+			}
+		});
 
 		$(dom).find('#victory-button').click(returnToHome);
 		$(dom).find("#victory-button").mouseenter(function(event){
