@@ -590,7 +590,9 @@ LobbyState.prototype.display = function() {
 		success: function(data) {
 			self._ownIndex = data.ownIndex;
 
-			var dom = $.parseHTML(templates['lobby']());
+			var dom = $.parseHTML(templates['lobby']({
+				name: data.name
+			}));
 			$('#content').empty().append(dom);
 
 			self._headingDom = $.parseHTML(templates['lobby-heading']({
