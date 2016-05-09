@@ -276,7 +276,7 @@ LobbyState.prototype.display = function() {
 
 	function pollUpdates() {
 		assertEquals(self._updateRequest, null);
-		self._updateRequest = $.post({
+		self._updateRequest = $.get({
 			url: backendUrl + '/backend/lobby/' + self._lobbyId
 					+ '/updates?sequenceId=' + self._sequenceId,
 			dataType: "json",
