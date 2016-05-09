@@ -47,29 +47,33 @@ var audioContext;
 var globalGain;
 
 (function() {
-	audioContext = new AudioContext();
+	var AudioContext = window.AudioContext 	|| window.webkitAudioContext || false;
+	if(!AudioContext) {
+		return;
+	}else{
+		audioContext = new AudioContext;
+		globalGain = audioContext.createGain();
+		globalGain.connect(audioContext.destination);
+		globalGain.gain.value = 0;
 
-	globalGain = audioContext.createGain();
-	globalGain.connect(audioContext.destination);
-	globalGain.gain.value = 0;
-
-	var bg_urls = [
-		"static/sounds/concussive.mp3",
-		"static/sounds/ethereal.mp3",
-		"static/sounds/kinetic.mp3"
-	];
-	
-	var bg_audio = new Audio(selectRandom(bg_urls));
-	audioContext.createMediaElementSource(bg_audio)
-	.connect(globalGain);
-	
-	bg_audio.onended = function(event) {
-		bg_audio.src = selectRandom(bg_urls);
+		var bg_urls = [
+			"static/sounds/concussive.mp3",
+			"static/sounds/ethereal.mp3",
+			"static/sounds/kinetic.mp3"
+		];
+		
+		var bg_audio = new Audio(selectRandom(bg_urls));
+		audioContext.createMediaElementSource(bg_audio)
+		.connect(globalGain);
+		
+		bg_audio.onended = function(event) {
+			bg_audio.src = selectRandom(bg_urls);
+			bg_audio.play();
+		};
+		
+		bg_audio.volume = 0.2;
 		bg_audio.play();
-	};
-	
-	bg_audio.volume = 0.2;
-	bg_audio.play();
+	}
 })();
 
 function StateSlot() {
