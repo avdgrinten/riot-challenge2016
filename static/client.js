@@ -445,11 +445,22 @@ LobbyState.prototype.display = function() {
 				$('#timer-text').text("Time is up!");
 			}else if(data.seconds == 1) {
 				$('#timer-text').text("1 second left");
-			}else if(data.seconds <= 5) {
-				$('#timer-text').css('color', 'red');
-				$('#timer-text').text(data.seconds + " seconds left");
-			}else {
-				$('#timer-text').css('color', 'black');
+			}else{
+				if(data.seconds == 3) {
+					var audio = new Audio("static/countdown.ogg");
+					audio.crossOrigin = 'anonymous';
+
+					audioContext.createMediaElementSource(audio)
+					.connect(globalGain);
+
+					audio.volume = 0.8;
+					audio.play();
+				}else if(data.seconds <= 5) {
+					$('#timer-text').css('color', 'red');
+				}else {
+					$('#timer-text').css('color', 'black');
+					
+				}
 				$('#timer-text').text(data.seconds + " seconds left");
 			}
 		}else if(type == 'correction') {
