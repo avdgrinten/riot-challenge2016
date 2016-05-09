@@ -1,9 +1,11 @@
 
-# riot-challenge2016
+# Guess my main!
 
 ## Running the application
 
 ### Live version
+
+You can try out this game at http://52.3.70.157/
 
 ### Prerequisites
 
