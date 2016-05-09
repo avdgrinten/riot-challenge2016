@@ -31,7 +31,8 @@ The following programs are required in order to run the server:
 			"staticUrl": "https://s3.amazonaws.com/guess-my-main"
 		},
 
-		"mongoUri": <URI of the MongoDB database, e.g. "mongodb://localhost:27017/guess-my-main">,
+		"mongoUri": <URI of the MongoDB database, e.g. "mongodb://localhost/guess-my-main">,
+
 		"apiKey": <Your Riot API key>
 	}
 	```
@@ -46,6 +47,66 @@ The following programs are required in order to run the server:
 6. Visit `http://localhost:8080` to play the game!
 
 ### Configuration options
+
+`config.json` supports the following options:
+
+```
+{
+	"serverPort": <HTTP port>,
+
+	"frontend": {
+		"staticUrl": <CDN for static files>
+	},
+
+	"mongoUri": <URI of the MongoDB database>,
+	"summonersGoal": <Number of summoners that should be imported per region>,
+
+	"apiKey": <Your Riot API key>,
+	"backgroundRate": <Riot API requests per 10 seconds>,
+	"realtimeRate": <Riot API requests per 10 seconds>
+}
+```
+
+* If no `frontend.staticUrl` is specified the static files are requested
+	from the local '/static' directory.
+
+	To prevent the repository size from exploding we did not commit binary
+	files to git. If you really want to serve them locally you have to download
+	the following files from `https://s3.amazonaws.com/guess-my-main`:
+
+	`icons/diamond.png`,
+	`icons/gold.png`,
+	`icons/challenger.png`,
+	`icons/platinum.png`,
+	`icons/silver.png`,
+	`icons/master.png`,
+	`icons/gold-coin.png`,
+	`icons/bronze.png`,
+	`backgrounds/poolparty1.jpg`,
+	`backgrounds/poolparty2.jpg`,
+	`backgrounds/morgana-ahri.jpg`,
+	`backgrounds/alistar-olaf.jpg`,
+	`backgrounds/promo.jpg`,
+	`backgrounds/teambuilder.jpg`,
+	`sounds/ethereal.mp3`,
+	`sounds/lock-champion.mp3`,
+	`sounds/kinetic.mp3`,
+	`sounds/button-hover.mp3`,
+	`sounds/defeat.mp3`,
+	`sounds/victory.mp3`,
+	`sounds/concussive.mp3`,
+	`sounds/countdown.mp3`
+
+* `backgroundRate` specifies the rate at which summoners are imported to the database.
+	Defaults to 2. `realtimeRate` is the rate at which realtime (e.g. to validate a summoner name)
+	requests are done to the Riot API. Defaults to 8.
+
+	Note that the defaults are very conservative and are small enough
+	to allow developer API keys to be used. Make sure not not to exceed the
+	rate limit on your API key when changing these options.
+
+* `summonersGoal` limits the number of summoners that are imported to the database.
+	Defaults to 2000.
 
 ## Design decisions
 
