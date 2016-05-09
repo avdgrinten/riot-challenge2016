@@ -323,7 +323,6 @@ LobbyState.prototype.display = function() {
 		}
 
 		$('#lobby-content').empty();
-		console.log(staticUrl);
 		var dom = $.parseHTML(templates["victory"]({
 			staticUrl: staticUrl,
 			winners: winners,
@@ -402,12 +401,25 @@ LobbyState.prototype.display = function() {
 				summoner: data.user
 			};
 		}else if(type == 'round') {
-			var dom = $.parseHTML(templates['question']({
-				round: data.round,
-				numRounds: data.numRounds,
-				mastered: data.question.mastered,
-				choices: data.question.choices
-			}));
+			console.log(data);
+			var dom;
+			if(data.question.questionType == 'guess-main') {
+				dom = $.parseHTML(templates['question']({
+					round: data.round,
+					numRounds: data.numRounds,
+					mastered: data.question.mastered,
+					choices: data.question.choices,
+					question: "What is his MAIN?"
+				}));
+			}else if(data.question.questionType == 'guess-least') {
+				dom = $.parseHTML(templates['question']({
+					round: data.round,
+					numRounds: data.numRounds,
+					mastered: data.question.mastered,
+					choices: data.question.choices,
+					question: "Which champions does he NOT play?"
+				}));
+			}
 
 			$(dom).find('.lock-answer').click(answerClick);
 			$(dom).find(".lock-answer").mouseenter(function(event){
