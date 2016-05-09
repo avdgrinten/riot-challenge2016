@@ -41,7 +41,7 @@ function playButtonSound() {
 	audioContext.createMediaElementSource(audio)
 	.connect(globalGain);
 
-	audio.volume = 0.8;
+	audio.volume = 0.3;
 	audio.play();
 }
 
@@ -76,7 +76,7 @@ function setupAudio() {
 			bg_audio.play();
 		};
 		
-		bg_audio.volume = 0.2;
+		bg_audio.volume = 0.1;
 		bg_audio.play();
 	}
 };
@@ -338,6 +338,7 @@ LobbyState.prototype.display = function() {
 				audioContext.createMediaElementSource(victory_audio)
 				.connect(globalGain);
 
+				victory_audio.volume = 0.8;
 				victory_audio.play();
 			}
 		});
@@ -349,6 +350,7 @@ LobbyState.prototype.display = function() {
 				audioContext.createMediaElementSource(defeat_audio)
 				.connect(globalGain);
 
+				defeat_audio.volume = 0.8;
 				defeat_audio.play();
 			}
 		});
@@ -453,7 +455,7 @@ LobbyState.prototype.display = function() {
 					audioContext.createMediaElementSource(audio)
 					.connect(globalGain);
 
-					audio.volume = 0.8;
+					audio.volume = 1;
 					audio.play();
 				}else if(data.seconds <= 5) {
 					$('#timer-text').css('color', 'red');
