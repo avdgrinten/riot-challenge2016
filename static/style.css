@@ -156,14 +156,6 @@ footer {
 	text-shadow: 0px 0px 20px black;
 }
 
-.locked-pick, .btn.locked-pick:hover {
-	background-color: #FDE74C;
-}
-
-.correct-pick, .btn.correct-pick:hover {
-	background-color: #9BC53D;
-}
-
 #round-container {
 	float: right;
 }

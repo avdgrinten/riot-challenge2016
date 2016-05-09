@@ -68,7 +68,7 @@ var globalGain;
 		bg_audio.play();
 	};
 	
-	bg_audio.volume = 0.4;
+	bg_audio.volume = 0.2;
 	bg_audio.play();
 })();
 
@@ -403,8 +403,7 @@ LobbyState.prototype.display = function() {
 				$('#timer-text').text(data.seconds + " seconds left");
 			}
 		}else if(type == 'correction') {
-			$('.lock-answer[data-champion=' + data.answer.championId + ']').removeClass('locked-pick');
-			$('.lock-answer[data-champion=' + data.answer.championId + ']').addClass('correct-pick');
+			$('.lock-answer[data-champion=' + data.answer.championId + ']').animate({ backgroundColor: "#9BC53D" }, "slow");
 			$('.lock-answer').attr('disabled', true);
 		}else if(type == 'scores') {
 			data.absolute.forEach(function(entry) {
@@ -489,7 +488,7 @@ LobbyState.prototype.display = function() {
 			}),
 			contentType: 'application/json',
 			success: function(data) {
-				$(event.currentTarget).addClass('locked-pick');
+				$(event.currentTarget).animate({ backgroundColor: "#FDE74C" }, "slow");
 				$(loading_dom).detach();
 			},
 			error: function(xhr, reason) {
@@ -781,6 +780,11 @@ $(document).ready(function() {
 
 	$('#range-sound').on('input', function(event) {
 		globalGain.gain.value = event.currentTarget.value / 100;
+	});
+
+	$('#header-link').click(function(event){
+		event.preventDefault();
+		navigateTo('/');
 	});
 
 	router.handle();
