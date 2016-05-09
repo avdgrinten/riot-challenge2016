@@ -263,6 +263,7 @@ HomeState.prototype.cancel = function() {
 function LobbyState(lobby_id) {
 	this._lobbyId = lobby_id;
 	this._ownIndex = null;
+	this._currentRound = null;
 
 	this._sequenceId = 0;
 	this._isAlive = true;
@@ -412,7 +413,8 @@ LobbyState.prototype.display = function() {
 				summoner: data.user
 			};
 		}else if(type == 'round') {
-			console.log(data);
+			self._currentRound = data.round;
+
 			var dom;
 			if(data.question.questionType == 'guess-main') {
 				dom = $.parseHTML(templates['question']({
@@ -532,7 +534,8 @@ LobbyState.prototype.display = function() {
 
 		assertEquals(self._answerRequest, null);
 		self._answerRequest = $.post({
-			url: backendUrl + '/backend/lobby/' + self._lobbyId + '/lock-answer',
+			url: backendUrl + '/backend/lobby/' + self._lobbyId + '/lock-answer'
+					+ '?round=' + self._currentRound,
 			data: JSON.stringify({
 				answer: {
 					championId: $(this).data('champion')
