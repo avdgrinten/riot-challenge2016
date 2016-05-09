@@ -176,12 +176,18 @@ footer {
 }
 
 .question-text,
-.input-text,
-.lobby-text,
-.home-text {
+.home-text-heading,
+.input-text-heading {
 	padding: 10px;
 	text-align: center;
 	font-size: 2em;
+}
+
+.input-text,
+.lobby-text,
+.home-text {
+	font-size: 125%;
+	text-align: center;
 }
 
 .lobby-link {
@@ -259,4 +265,12 @@ footer {
 
 #range-sound {
 	margin-left: 5px;
+}
+
+#ready-button {
+	margin-top: 20px;
+}
+
+.input-group {
+	margin-top: 20px;
 }

@@ -3,14 +3,15 @@
 {{else}}
 <div class="col-xs-12">
 {{/if}}
-	<p class="home-text">
+	<p class="home-text-heading">
 		Hello <img src={{myself.profileIcon}} width="32" height ="32"> {{myself.displayName}}.
-		<br>
-		Please select a game mode.
 	</p>
 	<p class="home-text">
-		<button id="button-solo" type="button" class="btn btn-default home-button">Solo</button>
-		<button id="button-party" btype="button" class="btn btn-default home-button">Party</button>
+		Invite some friends or just play on your own?
+	</p>
+	<p class="home-text">
+		<button id="button-solo" type="button" class="btn btn-default home-button">Play solo</button>
+		<button id="button-party" btype="button" class="btn btn-default home-button">Play with friends</button>
 	</p>
 </div>
 {{#if lobbies}}

@@ -809,4 +809,3 @@ $(document).ready(function() {
 
 	router.handle();
 });
-
