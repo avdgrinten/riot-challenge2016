@@ -5,7 +5,7 @@
 
 ### Live version
 
-You can try out this game at http://52.3.70.157/
+You can try out this game at http://52.3.70.157/ (hosted at Amzaon AWS)
 
 ### Prerequisites
 
