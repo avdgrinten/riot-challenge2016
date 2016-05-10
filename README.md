@@ -21,7 +21,7 @@ The following programs are required in order to run the server:
 
 1. Clone this repository from github
 
-2. Download dependencies via `npm install`
+2. Download dependencies via `npm install` in the repository's directory
 
 3. Create a `config.json` file containing the following contents:
 
@@ -70,7 +70,7 @@ The following programs are required in order to run the server:
 ```
 
 * If no `frontend.staticUrl` is specified the static files are requested
-	from the local '/static' directory.
+	from the local `/static` directory.
 
 	To prevent the repository size from exploding we did not commit binary
 	files to git. If you really want to serve them locally you have to download
@@ -193,6 +193,9 @@ The following programs are required in order to run the server:
 	corresponds to just adding a single middleware function to the express application.
 
 * MongoDB (server side)
+	
+	A document oriented database like MongoDB makes it much more easier
+	to handle unstructured data like summoner mastery information.
 
 * Handlebars.js (server side + client side)
 
@@ -221,4 +224,8 @@ The following programs are required in order to run the server:
 	volume levels and to let the user change the master volume seamlessly.
 
 * History API (client side)
+
+	The history API allows us to change the URL of our browsing window
+	without actually reloading the page. This leads to lower latencies
+	and makes sure the background music does not stop.
 
