@@ -5,7 +5,8 @@
 
 ### Live version
 
-You can try out this game at http://52.3.70.157/ (hosted at Amzaon AWS)
+You can try out this game at http://52.3.70.157/ (hosted at Amzaon AWS).
+The page works best on Firefox and Chrome. Edge and recent IE versions are supported too.
 
 ### Prerequisites
 
