@@ -14,6 +14,7 @@ const dbUtils = require('./lib/db-utils.js');
 const staticData = require('./lib/static-data.js');
 const crawl = require('./lib/crawl.js');
 const gameLogic = require('./lib/game-logic.js');
+const questionPool = require('./lib/questions.js');
 const riotApi = require('./lib/riot-api.js');
 const Frontend = require('./lib/frontend.js');
 const Backend = require('./lib/backend.js');
@@ -27,7 +28,7 @@ let collections = {
 };
 let staticCache;
 let realtimeCrawlers = { };
-let sampler;
+let samplers = { };
 let logic;
 let frontend;
 let backend;
@@ -131,20 +132,23 @@ let initBackgroundCrawlers = function() {
 	});
 };
 
-let initSampler = function() {
-	return new Promise((resolve, reject) => {
-		sampler = new crawl.Sampler({
+let initSamplers = function() {
+	return Promise.all(questionPool.map(entry => {
+		let sampler = new crawl.Sampler({
 			summonersCollection: collections.summoners,
+			questionId: entry.id
 		});
-		resolve();
-	});
+
+		return sampler.initialize()
+		.then(() => { samplers[entry.id] = sampler });
+	}));
 };
 
 let initLogic = function() {
 	return new Promise((resolve, reject) => {
 		logic = new gameLogic.Logic({
 			staticCache: staticCache,
-			sampler: sampler
+			samplers: samplers
 		});
 		resolve();
 	})
@@ -181,7 +185,7 @@ let main = function() {
 			.then(initStaticCache)
 			.then(initRealtimeCrawlers)
 			.then(initBackgroundCrawlers)
-			.then(initSampler)
+			.then(initSamplers)
 			.then(initLogic)
 			.then(() => {
 				frontend = new Frontend({
