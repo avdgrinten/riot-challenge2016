@@ -133,15 +133,15 @@ let initBackgroundCrawlers = function() {
 };
 
 let initSamplers = function() {
-	return Promise.all(questionPool.map(entry => {
-		let sampler = new crawl.Sampler({
-			summonersCollection: collections.summoners,
-			questionId: entry.id
+	return new Promise((resolve, reject) => {
+		questionPool.forEach(entry => {
+			samplers[entry.id] = new crawl.Sampler({
+				summonersCollection: collections.summoners,
+				questionId: entry.id
+			});
 		});
-
-		return sampler.initialize()
-		.then(() => { samplers[entry.id] = sampler });
-	}));
+		resolve();
+	});
 };
 
 let initLogic = function() {
