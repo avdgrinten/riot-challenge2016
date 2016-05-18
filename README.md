@@ -1,12 +1,12 @@
 
 # Guess my main!
 
-## Running the application
-
-### Live version
+## Live version
 
 You can try out this game at http://guessmymain.managarm.org (hosted at Amzaon AWS).
 The page works best on Firefox and Chrome. Edge and recent IE versions are supported too.
+
+## Running the application
 
 ### Prerequisites
 
